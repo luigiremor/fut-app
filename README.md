@@ -9,7 +9,6 @@
 - **Confirmação de Presença**: Jogadores podem confirmar sua participação facilmente.
 - **Agendamento de Partidas**: Marque datas e horários de jogos e compartilhe com os envolvidos.
 - **Estatísticas de Jogadores**: Mantenha um registro do desempenho dos participantes.
-- **Notificações**: Receba lembretes sobre partidas e atualizações de jogadores.
 
 ## Como Usar
 
