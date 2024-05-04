@@ -1,6 +1,7 @@
 # SoccerMatch
 
 ## Sobre
+
 **SoccerMatch** é um aplicativo web desenvolvido por **Luigi Remor Costa** para a disciplina INE5646-03238A (20241) - Programação para Web. Este aplicativo é ideal para organizar partidas de futebol, gerenciar equipes, confirmar participações, e muito mais.
 
 ## Funcionalidades
