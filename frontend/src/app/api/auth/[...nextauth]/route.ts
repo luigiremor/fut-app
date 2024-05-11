@@ -1,8 +1,8 @@
 import api from '@/services/api';
-import NextAuth from 'next-auth';
+import NextAuth, { NextAuthOptions, Session } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -11,19 +11,13 @@ const handler = NextAuth({
         password: { label: 'Password', type: 'password' }
       },
       authorize: async (credentials) => {
-        console.log(credentials ?? 'no credentials');
-
         if (!credentials?.username || !credentials?.password) return null;
 
         const { username, password } = credentials;
 
-        console.log(username, password);
-
         const res = await api.post('/auth/login', { username, password });
 
-        console.log(res.data);
-
-        if (res.status === 401) {
+        if (!res || res.status === 401) {
           return null;
         }
 
@@ -33,8 +27,6 @@ const handler = NextAuth({
           accessToken: res.data.access_token
         };
 
-        console.log('return authorize', user);
-
         return user;
       }
     })
@@ -43,35 +35,28 @@ const handler = NextAuth({
   secret: process.env.AUTH_SECRET,
   callbacks: {
     async jwt({ token, user }) {
-      console.log('jwt', token);
-
       if (user) {
         const { id, username, accessToken } = user;
 
         token = { ...token, user: { id, username }, accessToken };
       }
 
-      console.log('return jwt', token);
-
       return token;
     },
     async session({ token, session }) {
-      console.log('session', session);
-      console.log('token', token);
-
       if (token) {
         session = {
           ...session,
           accessToken: token.accessToken,
           user: token.user
-        };
+        } as Session;
       }
-
-      console.log('return session', session);
 
       return session;
     }
   }
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
