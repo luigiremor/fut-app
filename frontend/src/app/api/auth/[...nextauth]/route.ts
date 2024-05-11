@@ -33,12 +33,45 @@ const handler = NextAuth({
           accessToken: res.data.access_token
         };
 
-        console.log(user);
+        console.log('return authorize', user);
 
         return user;
       }
     })
-  ]
+  ],
+  session: { strategy: 'jwt' },
+  secret: process.env.AUTH_SECRET,
+  callbacks: {
+    async jwt({ token, user }) {
+      console.log('jwt', token);
+
+      if (user) {
+        const { id, username, accessToken } = user;
+
+        token = { ...token, user: { id, username }, accessToken };
+      }
+
+      console.log('return jwt', token);
+
+      return token;
+    },
+    async session({ token, session }) {
+      console.log('session', session);
+      console.log('token', token);
+
+      if (token) {
+        session = {
+          ...session,
+          accessToken: token.accessToken,
+          user: token.user
+        };
+      }
+
+      console.log('return session', session);
+
+      return session;
+    }
+  }
 });
 
 export { handler as GET, handler as POST };

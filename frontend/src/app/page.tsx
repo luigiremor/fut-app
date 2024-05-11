@@ -23,7 +23,7 @@ export default function Home() {
         <input type="password" placeholder="Password" />
         <button type="submit">Submit</button>
       </form>
-      <button onClick={() => signOut()}>Sign out</button>
+      <button onClick={() => signOut({ redirect: false })}>Sign out</button>
       oi
     </main>
   );
