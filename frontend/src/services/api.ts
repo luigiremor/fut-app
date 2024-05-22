@@ -1,8 +1,5 @@
-'use server';
-
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import axios from 'axios';
-import { getServerSession } from 'next-auth';
+import { getSession } from 'next-auth/react';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/'
@@ -10,11 +7,12 @@ const api = axios.create({
 
 api.interceptors.request.use(
   async (config) => {
-    const session = await getServerSession(authOptions);
+    const session = await getSession();
 
     if (session?.accessToken) {
       config.headers.Authorization = `Bearer ${session.accessToken}`;
     }
+
     return config;
   },
   (error) => {

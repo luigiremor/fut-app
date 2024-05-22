@@ -1,12 +1,15 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -36,5 +39,11 @@ export class AuthController {
     }
 
     return this.authService.register(createUserDto);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('profile')
+  async profile() {
+    return 'Profile';
   }
 }
