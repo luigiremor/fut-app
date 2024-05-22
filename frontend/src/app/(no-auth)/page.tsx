@@ -19,6 +19,13 @@ export default function Home() {
     } catch (error) {
       console.error(error);
     }
+
+    try {
+      const response2 = await api.get('users/luigi');
+      console.log(response2);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
