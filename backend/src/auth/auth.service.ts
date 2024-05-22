@@ -28,8 +28,6 @@ export class AuthService {
 
     const { id, username } = await this.userService.findUser(user.username);
 
-    console.log(id, username);
-
     return {
       id,
       username,
