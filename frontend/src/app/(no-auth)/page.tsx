@@ -16,6 +16,8 @@ export default function Home() {
 
     try {
       const response = await api.get('auth/profile');
+
+      console.log(response);
     } catch (error) {
       console.error(error);
     }

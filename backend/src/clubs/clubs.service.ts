@@ -4,18 +4,31 @@ import { UpdateClubDto } from './dto/update-club.dto';
 import { Repository } from 'typeorm';
 import { Club } from './entities/club.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateUserClubDto } from 'src/user-club/dto/create-user-club.dto';
+import { UserClubService } from 'src/user-club/user-club.service';
 
 @Injectable()
 export class ClubsService {
   constructor(
     @InjectRepository(Club)
     private clubRepository: Repository<Club>,
+    private userClubService: UserClubService,
   ) {}
 
-  create(createClubDto: CreateClubDto) {
+  async create(createClubDto: CreateClubDto, userId: string) {
     const newClub = this.clubRepository.create(createClubDto);
 
-    return this.clubRepository.save(newClub);
+    const savedClub = await this.clubRepository.save(newClub);
+
+    const createUserClubDto: CreateUserClubDto = {
+      userId,
+      clubId: savedClub.id,
+      role: 'admin',
+    };
+
+    const newUserClub = this.userClubService.create(createUserClubDto);
+
+    return savedClub;
   }
 
   findAll() {

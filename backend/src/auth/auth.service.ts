@@ -24,9 +24,9 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { username: user.username, sub: user.userId };
-
     const { id, username } = await this.userService.findUser(user.username);
+
+    const payload = { username: user.username, sub: id };
 
     return {
       id,
