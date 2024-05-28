@@ -8,8 +8,8 @@ export default function Home() {
   const { data: session } = useSession();
 
   console.log(session);
-  const usernameRef = useRef(null);
-  const passwordRef = useRef(null);
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   const testAuthorization = async () => {
     console.log('Testing authorization');
@@ -34,6 +34,9 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <form
         onSubmit={(e) => {
+          if (!usernameRef.current?.value || !passwordRef.current?.value)
+            return;
+
           e.preventDefault();
           signIn('credentials', {
             redirect: false,
