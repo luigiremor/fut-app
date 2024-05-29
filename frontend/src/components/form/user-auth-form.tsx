@@ -1,43 +1,95 @@
 'use client';
 
-import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import { Icons } from '@/components/common/icons';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormControl,
+  FormMessage
+} from '@/components/ui/form';
+import api from '@/services/api';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
-interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
+const schema = z.object({
+  username: z
+    .string({
+      required_error: 'Username is required'
+    })
+    .min(1, 'Username is required'),
+  password: z
+    .string({
+      required_error: 'Password is required'
+    })
+    .min(5, 'Password must be at least 6 characters')
+});
 
-export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
+type AuthenticationSchema = z.infer<typeof schema>;
+
+async function registerUser(data: AuthenticationSchema) {
+  return api.post('/auth/register', data);
+}
+
+async function loginUser(data: AuthenticationSchema) {
+  return signIn('credentials', {
+    redirect: false,
+    username: data.username,
+    password: data.password
+  });
+}
+
+export function UserAuthForm() {
   const [isRegister, setIsRegister] = useState(false);
+  const router = useRouter();
 
-  async function onSubmit(event: React.SyntheticEvent) {
-    event.preventDefault();
-    setIsLoading(true);
+  const form = useForm<AuthenticationSchema>({
+    resolver: zodResolver(schema)
+  });
 
+  async function onSubmit(data: AuthenticationSchema) {
     if (isRegister) {
-      // Registration logic
-      console.log('Registering user...');
-      // Simulate API call
-      setTimeout(() => {
-        setIsLoading(false);
-        console.log('User registered');
-      }, 3000);
-    } else {
-      // Login logic
-      console.log('Logging in user...');
-      // Simulate API call
-      setTimeout(() => {
-        setIsLoading(false);
-        console.log('User logged in');
-      }, 3000);
+      const registerPromise = registerUser(data).then(() => {
+        return signIn('credentials', {
+          redirect: false,
+          username: data.username,
+          password: data.password
+        });
+      });
+
+      toast.promise(registerPromise, {
+        loading: 'Creating account...',
+        success: () => {
+          router.push('/dashboard');
+          return 'Account created successfully';
+        },
+        error: 'Failed to create account'
+      });
+
+      return;
     }
+
+    const loginPromise = loginUser(data);
+
+    toast.promise(loginPromise, {
+      loading: 'Signing in...',
+      success: () => {
+        router.push('/dashboard');
+        return 'Signed in successfully';
+      },
+      error: 'Failed to sign in'
+    });
   }
 
   return (
-    <div className={cn('grid gap-6', className)} {...props}>
+    <div className="grid gap-6">
       <div className="flex flex-col space-y-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">
           {isRegister ? 'Create an account' : 'Sign in to your account'}
@@ -45,56 +97,74 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         <p className="text-sm text-muted-foreground">
           {isRegister
             ? 'Enter your details below to create your account'
-            : 'Enter your email and password to sign in'}
+            : 'Enter your username and password to sign in'}
         </p>
       </div>
 
-      <form onSubmit={onSubmit}>
-        <div className="grid gap-2">
-          <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="username">
-              Username
-            </Label>
-            <Input
-              id="username"
-              placeholder="Username"
-              type="text"
-              autoCapitalize="none"
-              autoComplete="username"
-              autoCorrect="off"
-              disabled={isLoading}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="grid gap-2">
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      placeholder="Username"
+                      autoCapitalize="none"
+                      autoComplete="username"
+                      autoCorrect="off"
+                      disabled={form.formState.isSubmitting}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            <Label className="sr-only" htmlFor="password">
-              Password
-            </Label>
-            <Input
-              id="password"
-              placeholder="Password"
-              type="password"
-              autoCapitalize="none"
-              autoComplete="current-password"
-              autoCorrect="off"
-              disabled={isLoading}
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Password"
+                      autoCapitalize="none"
+                      autoComplete="current-password"
+                      autoCorrect="off"
+                      disabled={form.formState.isSubmitting}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
+            <Button
+              type="submit"
+              disabled={form.formState.isSubmitting || !form.formState.isValid}
+            >
+              {form.formState.isSubmitting && (
+                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {isRegister ? 'Sign Up' : 'Sign In'}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setIsRegister(!isRegister)}
+              disabled={form.formState.isSubmitting}
+            >
+              {isRegister
+                ? 'Already have an account? Sign In'
+                : "Don't have an account? Sign Up"}
+            </Button>
           </div>
-          <Button disabled={isLoading}>
-            {isLoading && (
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            {isRegister ? 'Sign Up' : 'Sign In'}
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => setIsRegister(!isRegister)}
-            disabled={isLoading}
-          >
-            {isRegister
-              ? 'Already have an account? Sign In'
-              : "Don't have an account? Sign Up"}
-          </Button>
-        </div>
-      </form>
+        </form>
+      </Form>
     </div>
   );
 }
