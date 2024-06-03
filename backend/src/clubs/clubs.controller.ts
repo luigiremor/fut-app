@@ -45,4 +45,12 @@ export class ClubsController {
   remove(@Param('id') id: string) {
     return this.clubsService.remove(id);
   }
+
+  @UseGuards(AuthGuard)
+  @Get('user/me')
+  findClubsByUser(@Req() request: any) {
+    const userId = request.user.sub;
+
+    return this.clubsService.findClubsByUser(userId);
+  }
 }

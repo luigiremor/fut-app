@@ -32,8 +32,6 @@ export class UserClubService {
       club,
     });
 
-    console.log('newUserClub', newUserClub);
-
     return this.userClubRepository.save(newUserClub);
   }
 

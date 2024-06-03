@@ -26,7 +26,7 @@ export class ClubsService {
       role: 'admin',
     };
 
-    const newUserClub = this.userClubService.create(createUserClubDto);
+    const newUserClub = await this.userClubService.create(createUserClubDto);
 
     return savedClub;
   }
@@ -37,6 +37,18 @@ export class ClubsService {
 
   findOne(id: string) {
     return this.clubRepository.findOne({ where: { id } });
+  }
+
+  async findClubsByUser(userId: string): Promise<Club[]> {
+    return this.clubRepository
+      .createQueryBuilder('club')
+      .innerJoinAndSelect(
+        'club.userClubs',
+        'userClub',
+        'userClub.userId = :userId',
+        { userId },
+      )
+      .getMany();
   }
 
   update(id: string, updateClubDto: UpdateClubDto) {

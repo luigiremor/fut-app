@@ -1,8 +1,15 @@
 import { Icons } from '@/components/common/icons';
 import { UserAuthForm } from '@/components/form/user-auth-form';
+import { getSession } from '@/lib/auth/utils';
+import { paths } from '@/utils/paths';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
-export default function AuthenticationPage() {
+export default async function AuthenticationPage() {
+  const session = await getSession();
+
+  if (session) return redirect(paths.auth.dashboard);
+
   return (
     <div className="container relative h-[800px] flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
       <div className="relative hidden h-screen flex-col bg-muted p-10 text-white lg:flex dark:border-r">

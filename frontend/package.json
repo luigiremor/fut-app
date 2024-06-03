@@ -11,7 +11,8 @@
     "test": "jest",
     "test:watch": "npm test --watch",
     "test:coverage": "npm test --coverage",
-    "test:coverage:text": "npm test --coverage --coverageReporters='text-summary'"
+    "test:coverage:text": "npm test --coverage --coverageReporters='text-summary'",
+    "generate-types": "swagger-typescript-api -p http://localhost:8080/api-json -o ./src/types"
   },
   "husky": {
     "hooks": {
@@ -70,6 +71,7 @@
     "lint-staged": "^15.2.0",
     "postcss": "^8",
     "prettier": "3.1.1",
+    "swagger-typescript-api": "^13.0.5",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }

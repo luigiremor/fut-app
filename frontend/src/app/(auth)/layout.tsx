@@ -1,16 +1,19 @@
 import { Navbar } from '@/components/navbar';
-import { authOptions } from '@/lib/auth/options';
-import { getServerSession } from 'next-auth';
+import { getSession } from '@/lib/auth/utils';
+import { paths } from '@/utils/paths';
+import { redirect } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 
 export default async function AuthLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
 
   if (!session) {
-    return <div>Unauthorized</div>;
+    return redirect(paths.public.home);
   }
 
   return (
