@@ -8,7 +8,7 @@ import { redirect } from 'next/navigation';
 export default async function AuthenticationPage() {
   const session = await getSession();
 
-  if (session) return redirect(paths.auth.dashboard);
+  if (session?.accessToken) return redirect(paths.auth.dashboard);
 
   return (
     <div className="container relative h-[800px] flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">

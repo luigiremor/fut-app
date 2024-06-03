@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { getMyClubs } from '@/resolver/get-my-clubs';
 import { paths } from '@/utils/paths';
 import Link from 'next/link';
+import { FaArrowRightLong } from 'react-icons/fa6';
 
 export default async function Dashboard() {
   const myClubs = await getMyClubs();
@@ -82,7 +83,7 @@ export default async function Dashboard() {
                 key={club.name}
                 className="snap-start flex-shrink-0 sm:min-w-[calc(100%-1rem)] md:min-w-[calc(50%-1rem)] lg:min-w-[calc(30%-1rem)]"
               >
-                <CardHeader>
+                <CardHeader className="flex flex-row justify-between">
                   <div className="flex items-center space-x-4">
                     <Avatar>
                       <AvatarFallback>TA</AvatarFallback>
@@ -97,6 +98,17 @@ export default async function Dashboard() {
                       </div>
                     </div>
                   </div>
+                  <Link
+                    href={`/club/${club.name}`}
+                    className={cn(
+                      buttonVariants({
+                        variant: 'default',
+                        size: 'icon'
+                      })
+                    )}
+                  >
+                    <FaArrowRightLong />
+                  </Link>
                 </CardHeader>
               </Card>
             );

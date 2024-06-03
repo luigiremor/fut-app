@@ -8,7 +8,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(
-  async (config) => {
+  async function onFulfilled(config) {
     const session = await getSession();
 
     if (session?.accessToken) {
@@ -17,7 +17,7 @@ api.interceptors.request.use(
 
     return config;
   },
-  (error) => {
+  async function onError(error) {
     return Promise.reject(error);
   }
 );

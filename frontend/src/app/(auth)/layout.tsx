@@ -12,7 +12,7 @@ export default async function AuthLayout({
 }) {
   const session = await getSession();
 
-  if (!session) {
+  if (!session?.accessToken) {
     return redirect(paths.public.home);
   }
 

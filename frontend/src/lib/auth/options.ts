@@ -1,6 +1,7 @@
 import api from '@/services/api';
-import { NextAuthOptions, Session } from 'next-auth';
+import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { isAfter } from 'date-fns';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -41,6 +42,14 @@ export const authOptions: NextAuthOptions = {
         token = { ...token, user: { id, username }, accessToken };
       }
 
+      console.log(token);
+
+      const isTokenExpired = isAfter(Date.now(), token?.exp * 1000);
+
+      if (isTokenExpired) {
+        return { ...token, user: null, accessToken: null };
+      }
+
       return token;
     },
     async session({ token, session }) {
@@ -49,9 +58,8 @@ export const authOptions: NextAuthOptions = {
           ...session,
           accessToken: token.accessToken,
           user: token.user
-        } as Session;
+        };
       }
-
       return session;
     }
   }
