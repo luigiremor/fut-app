@@ -1,4 +1,5 @@
 import { IsString, IsUUID, IsIn } from 'class-validator';
+import { UserRole } from '../entities/user-club.entity';
 
 export class CreateUserClubDto {
   @IsUUID()
@@ -8,6 +9,6 @@ export class CreateUserClubDto {
   clubId: string;
 
   @IsString()
-  @IsIn(['admin', 'member'])
+  @IsIn([UserRole.ADMIN, UserRole.OWNER, UserRole.MEMBER])
   role: string;
 }

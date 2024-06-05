@@ -3,7 +3,7 @@ import { CreateUserClubDto } from './dto/create-user-club.dto';
 import { UpdateUserClubDto } from './dto/update-user-club.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserClub } from './entities/user-club.entity';
+import { UserClub, UserRole } from './entities/user-club.entity';
 import { UserService } from 'src/user/user.service';
 import { ClubsService } from 'src/clubs/clubs.service';
 
@@ -52,5 +52,17 @@ export class UserClubService {
 
   remove(id: number) {
     return this.userClubRepository.delete(id);
+  }
+
+  hasUserAdminPermission(userId: string, userClubId: string) {
+    return this.userClubRepository.findOne({
+      where: {
+        id: userClubId,
+        user: {
+          id: userId,
+        },
+        role: UserRole.ADMIN || UserRole.OWNER,
+      },
+    });
   }
 }

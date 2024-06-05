@@ -6,6 +6,7 @@ import { Club } from './entities/club.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserClubDto } from 'src/user-club/dto/create-user-club.dto';
 import { UserClubService } from 'src/user-club/user-club.service';
+import { UserRole } from 'src/user-club/entities/user-club.entity';
 
 @Injectable()
 export class ClubsService {
@@ -17,17 +18,15 @@ export class ClubsService {
 
   async create(createClubDto: CreateClubDto, userId: string) {
     const newClub = this.clubRepository.create(createClubDto);
-
     const savedClub = await this.clubRepository.save(newClub);
 
     const createUserClubDto: CreateUserClubDto = {
       userId,
       clubId: savedClub.id,
-      role: 'admin',
+      role: UserRole.OWNER,
     };
 
     const newUserClub = await this.userClubService.create(createUserClubDto);
-
     return savedClub;
   }
 
@@ -37,6 +36,10 @@ export class ClubsService {
 
   findOne(id: string) {
     return this.clubRepository.findOne({ where: { id } });
+  }
+
+  findOneByName(name: string) {
+    return this.clubRepository.findOne({ where: { name } });
   }
 
   async findClubsByUser(userId: string): Promise<Club[]> {
@@ -51,11 +54,11 @@ export class ClubsService {
       .getMany();
   }
 
-  update(id: string, updateClubDto: UpdateClubDto) {
-    return this.clubRepository.update(id, updateClubDto);
+  updateByName(name: string, updateClubDto: UpdateClubDto) {
+    return this.clubRepository.update({ name }, updateClubDto);
   }
 
-  remove(id: string) {
-    return this.clubRepository.delete(id);
+  removeByName(name: string) {
+    return this.clubRepository.delete({ name });
   }
 }

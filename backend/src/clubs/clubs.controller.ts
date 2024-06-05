@@ -31,26 +31,25 @@ export class ClubsController {
     return this.clubsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.clubsService.findOne(id);
+  @Get(':name')
+  findOne(@Param('name') name: string) {
+    return this.clubsService.findOneByName(name);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateClubDto: UpdateClubDto) {
-    return this.clubsService.update(id, updateClubDto);
+  @Patch(':name')
+  update(@Param('name') name: string, @Body() updateClubDto: UpdateClubDto) {
+    return this.clubsService.updateByName(name, updateClubDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.clubsService.remove(id);
+  @Delete(':name')
+  remove(@Param('name') name: string) {
+    return this.clubsService.removeByName(name);
   }
 
   @UseGuards(AuthGuard)
   @Get('user/me')
   findClubsByUser(@Req() request: any) {
     const userId = request.user.sub;
-
     return this.clubsService.findClubsByUser(userId);
   }
 }
