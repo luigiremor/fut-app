@@ -1,4 +1,3 @@
-'use client';
 import {
   Card,
   CardHeader,
@@ -14,13 +13,17 @@ import {
   TableBody,
   TableCell
 } from '@/components/ui/table';
+import { getClubMembers } from '@/resolver/get-club-members';
+import { UserClub } from '@/types/Api';
 
-export default function ClubAdminView({
+export default async function ClubAdminView({
   params
 }: {
   params: { clubName: string };
 }) {
   const { clubName } = params;
+
+  const clubMembers: UserClub[] = await getClubMembers(clubName);
 
   return (
     <Card>
@@ -37,10 +40,12 @@ export default function ClubAdminView({
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow className="bg-accent">
-              <TableCell>Name</TableCell>
-              <TableCell>Sale</TableCell>
-            </TableRow>
+            {clubMembers.map((member) => (
+              <TableRow key={member.id} className="odd:bg-accent">
+                <TableCell>{member.user.username}</TableCell>
+                <TableCell>{member.role}</TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </CardContent>

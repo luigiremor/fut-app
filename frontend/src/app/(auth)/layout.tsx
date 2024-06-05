@@ -1,7 +1,6 @@
 import { Navbar } from '@/components/navbar';
 import { getSession } from '@/lib/auth/utils';
-import { paths } from '@/utils/paths';
-import { redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +12,7 @@ export default async function AuthLayout({
   const session = await getSession();
 
   if (!session?.accessToken) {
-    return redirect(paths.public.home);
+    return notFound();
   }
 
   return (

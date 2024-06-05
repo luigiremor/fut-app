@@ -63,6 +63,20 @@ export class UserClubController {
     return this.userClubService.update(id, updateUserClubDto);
   }
 
+  @UseGuards(AuthGuard)
+  @Get('club/:clubName/users')
+  async getUsersWithRolesForClubByName(
+    @Param('clubName') clubName: string,
+    @Req() req,
+  ) {
+    const userId = req.user.sub;
+
+    return this.userClubService.getUsersWithRolesForClubByName(
+      clubName,
+      userId,
+    );
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userClubService.remove(+id);

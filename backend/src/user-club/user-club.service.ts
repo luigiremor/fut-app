@@ -2,7 +2,7 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateUserClubDto } from './dto/create-user-club.dto';
 import { UpdateUserClubDto } from './dto/update-user-club.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UserClub, UserRole } from './entities/user-club.entity';
 import { UserService } from 'src/user/user.service';
 import { ClubsService } from 'src/clubs/clubs.service';
@@ -61,8 +61,43 @@ export class UserClubService {
         user: {
           id: userId,
         },
-        role: UserRole.ADMIN || UserRole.OWNER,
+        role: In([UserRole.OWNER, UserRole.ADMIN]),
       },
     });
+  }
+
+  async getUsersWithRolesForClubByName(clubName: string, userId: string) {
+    const club = await this.clubService.findOneByName(clubName);
+
+    console.log(club);
+
+    if (!club) {
+      throw new Error('Club not found');
+    }
+
+    console.log(userId);
+
+    const currentUserClub = await this.userClubRepository.findOne({
+      where: {
+        user: { id: userId },
+        club: { id: club.id },
+        role: In([UserRole.OWNER, UserRole.ADMIN]),
+      },
+    });
+
+    console.log(currentUserClub);
+
+    if (!currentUserClub) {
+      throw new Error(
+        'You do not have permission to manage user roles for this club',
+      );
+    }
+
+    const usersWithRoles = await this.userClubRepository.find({
+      where: { club: { id: club.id } },
+      relations: ['user'],
+    });
+
+    return usersWithRoles;
   }
 }
