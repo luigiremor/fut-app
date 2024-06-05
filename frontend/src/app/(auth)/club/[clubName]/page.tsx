@@ -1,3 +1,4 @@
+import { ManageRolesCard } from '@/components/club/manage-roles-card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -12,33 +13,7 @@ export default function ClubPage({ params }: { params: { clubName: string } }) {
       <section className="mb-8">
         <h2 className="text-3xl font-bold mb-2">{decodedClubName} Dashboard</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card className="col-span-1">
-            <CardHeader>
-              <CardTitle>Manage Roles</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="text-lg font-bold mb-2">Assign Roles</h3>
-                  <p className="text-gray-500 mb-2">
-                    Assign roles to members within the club.
-                  </p>
-                  <Button variant="outline" className="mt-2">
-                    Assign Roles
-                  </Button>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold mb-2">Invite Members</h3>
-                  <p className="text-gray-500 mb-2">
-                    Invite new members to join the club.
-                  </p>
-                  <Button variant="outline" className="mt-2">
-                    Invite Members
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <ManageRolesCard />
           <Card className="col-span-1 md:col-span-2 lg:col-span-2">
             <CardHeader>
               <CardTitle>Upcoming Games</CardTitle>

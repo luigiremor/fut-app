@@ -38,7 +38,10 @@ export const CreateClubForm = () => {
     toast.promise(createClubPromise, {
       loading: 'Creating club...',
       success: 'Club created successfully',
-      error: 'Failed to create club'
+      error: (error) => {
+        console.error(error);
+        return 'An error occurred while creating the club';
+      }
     });
   };
 

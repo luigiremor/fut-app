@@ -15,9 +15,9 @@ import {
   FormControl,
   FormMessage
 } from '@/components/ui/form';
-import api from '@/services/api';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import api from '@/services/api';
 
 const schema = z.object({
   username: z
@@ -35,7 +35,7 @@ const schema = z.object({
 type AuthenticationSchema = z.infer<typeof schema>;
 
 async function registerUser(data: AuthenticationSchema) {
-  return api.post('/auth/register', data);
+  return await api.post('/auth/register', data);
 }
 
 async function loginUser(data: AuthenticationSchema) {
@@ -56,13 +56,7 @@ export function UserAuthForm() {
 
   async function onSubmit(data: AuthenticationSchema) {
     if (isRegister) {
-      const registerPromise = registerUser(data).then(() => {
-        return signIn('credentials', {
-          redirect: false,
-          username: data.username,
-          password: data.password
-        });
-      });
+      const registerPromise = registerUser(data);
 
       toast.promise(registerPromise, {
         loading: 'Creating account...',
