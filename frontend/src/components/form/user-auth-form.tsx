@@ -40,7 +40,7 @@ async function registerUser(data: AuthenticationSchema) {
 
 async function loginUser(data: AuthenticationSchema) {
   return signIn('credentials', {
-    redirect: false,
+    callbackUrl: '/dashboard',
     username: data.username,
     password: data.password
   });
@@ -75,7 +75,6 @@ export function UserAuthForm() {
     toast.promise(loginPromise, {
       loading: 'Signing in...',
       success: () => {
-        router.push('/dashboard');
         return 'Signed in successfully';
       },
       error: 'Failed to sign in'

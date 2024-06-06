@@ -1,7 +1,6 @@
 import api from '@/services/api';
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { isAfter } from 'date-fns';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -32,7 +31,10 @@ export const authOptions: NextAuthOptions = {
       }
     })
   ],
-  session: { strategy: 'jwt' },
+  session: {
+    strategy: 'jwt',
+    maxAge: 60 * 60 // 1 hour
+  },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, user }) {
@@ -40,12 +42,6 @@ export const authOptions: NextAuthOptions = {
         const { id, username, accessToken } = user;
 
         token = { ...token, user: { id, username }, accessToken };
-      }
-
-      const isTokenExpired = isAfter(Date.now(), token?.exp * 1000);
-
-      if (isTokenExpired) {
-        return { ...token, user: null, accessToken: null };
       }
 
       return token;
@@ -60,5 +56,8 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     }
+  },
+  pages: {
+    signIn: '/'
   }
 };
