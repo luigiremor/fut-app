@@ -6,10 +6,11 @@ import { Club } from './entities/club.entity';
 import { UserClubModule } from 'src/user-club/user-club.module';
 import { UserClub } from 'src/user-club/entities/user-club.entity';
 import { AuthModule } from 'src/auth/auth.module';
+import { InviteToken } from './entities/invite-token.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Club, UserClub]),
+    TypeOrmModule.forFeature([Club, UserClub, InviteToken]),
     forwardRef(() => UserClubModule),
     forwardRef(() => AuthModule),
   ],

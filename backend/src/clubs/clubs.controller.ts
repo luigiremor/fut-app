@@ -8,15 +8,23 @@ import {
   Delete,
   UseGuards,
   Req,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { ClubsService } from './clubs.service';
 import { CreateClubDto } from './dto/create-club.dto';
 import { UpdateClubDto } from './dto/update-club.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { InviteClubDto } from './dto/invite-club.dto';
+import { UserClubService } from 'src/user-club/user-club.service';
+import { CreateInviteLinkDto } from './dto/create-invite-link.dto';
 
 @Controller('clubs')
 export class ClubsController {
-  constructor(private readonly clubsService: ClubsService) {}
+  constructor(
+    private readonly clubsService: ClubsService,
+    private readonly userClubService: UserClubService,
+  ) {}
 
   @UseGuards(AuthGuard)
   @Post()
@@ -51,5 +59,38 @@ export class ClubsController {
   findClubsByUser(@Req() request: any) {
     const userId = request.user.sub;
     return this.clubsService.findClubsByUser(userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('invite')
+  async generateInviteLink(
+    @Body() createInviteLinkDto: CreateInviteLinkDto,
+    @Req() request: any,
+  ) {
+    const userId = request.user.sub;
+    const hasUserAdminPermission =
+      await this.userClubService.hasUserAdminPermission(
+        userId,
+        createInviteLinkDto.clubId,
+      );
+
+    if (!hasUserAdminPermission) {
+      throw new HttpException(
+        'You do not have permission to generate an invite link',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const inviteLink = await this.clubsService.generateInviteLink(
+      createInviteLinkDto.clubId,
+    );
+    return { inviteLink };
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('join')
+  async joinClub(@Body() inviteClubDto: InviteClubDto, @Req() request: any) {
+    const userId = request.user.sub;
+    return this.clubsService.joinClub(inviteClubDto, userId);
   }
 }

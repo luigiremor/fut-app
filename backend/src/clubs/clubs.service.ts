@@ -6,14 +6,19 @@ import { Club } from './entities/club.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserClubDto } from 'src/user-club/dto/create-user-club.dto';
 import { UserClubService } from 'src/user-club/user-club.service';
-import { UserRole } from 'src/user-club/entities/user-club.entity';
+import { UserClub, UserRole } from 'src/user-club/entities/user-club.entity';
+import { InviteClubDto } from './dto/invite-club.dto';
+import { InviteToken } from './entities/invite-token.entity';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class ClubsService {
   constructor(
+    private userClubService: UserClubService,
     @InjectRepository(Club)
     private clubRepository: Repository<Club>,
-    private userClubService: UserClubService,
+    @InjectRepository(InviteToken)
+    private inviteTokenRepository: Repository<InviteToken>,
   ) {}
 
   async create(createClubDto: CreateClubDto, userId: string) {
@@ -60,5 +65,48 @@ export class ClubsService {
 
   removeByName(name: string) {
     return this.clubRepository.delete({ name });
+  }
+
+  async generateInviteLink(clubId: string): Promise<string> {
+    const inviteToken = crypto.randomBytes(16).toString('hex');
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 1);
+
+    const newInviteToken = this.inviteTokenRepository.create({
+      token: inviteToken,
+      club: { id: clubId },
+      expiresAt,
+    });
+
+    await this.inviteTokenRepository.save(newInviteToken);
+
+    return `${process.env.FRONTEND_DOMAIN}/clubs/join?clubId=${clubId}&inviteToken=${inviteToken}`;
+  }
+
+  async joinClub(
+    inviteClubDto: InviteClubDto,
+    userId: string,
+  ): Promise<UserClub> {
+    const inviteToken = await this.inviteTokenRepository.findOne({
+      where: {
+        token: inviteClubDto.inviteToken,
+        club: { id: inviteClubDto.clubId },
+      },
+      relations: ['club'],
+    });
+
+    if (!inviteToken || new Date() > inviteToken.expiresAt) {
+      throw new Error('Invalid or expired invite token');
+    }
+
+    const createUserClubDto: CreateUserClubDto = {
+      userId,
+      clubId: inviteToken.club.id,
+      role: UserRole.MEMBER,
+    };
+
+    await this.inviteTokenRepository.remove(inviteToken);
+
+    return this.userClubService.create(createUserClubDto);
   }
 }

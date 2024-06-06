@@ -54,16 +54,18 @@ export class UserClubService {
     return this.userClubRepository.delete(id);
   }
 
-  hasUserAdminPermission(userId: string, userClubId: string) {
-    return this.userClubRepository.findOne({
+  async hasUserAdminPermission(
+    userId: string,
+    clubId: string,
+  ): Promise<boolean> {
+    const userClub = await this.userClubRepository.findOne({
       where: {
-        id: userClubId,
-        user: {
-          id: userId,
-        },
+        user: { id: userId },
+        club: { id: clubId },
         role: In([UserRole.OWNER, UserRole.ADMIN]),
       },
     });
+    return !!userClub;
   }
 
   async getUsersWithRolesForClubByName(clubName: string, userId: string) {
