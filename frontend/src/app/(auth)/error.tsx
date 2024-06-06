@@ -38,20 +38,22 @@ export default function Error({
           We can’t seem to find the page you’re looking for.
         </p>
       </div>
-      <Button variant="outline" onClick={() => reset()}>
-        Try again
-      </Button>
-      <Link
-        className={cn(
-          buttonVariants({
-            variant: 'default'
-          })
-        )}
-        href="/dashboard"
-        prefetch={false}
-      >
-        Go back
-      </Link>
+      <div className="flex space-x-4">
+        <Button variant="outline" onClick={() => reset()}>
+          Try again
+        </Button>
+        <Link
+          className={cn(
+            buttonVariants({
+              variant: 'default'
+            })
+          )}
+          href="/dashboard"
+          prefetch={false}
+        >
+          Go back
+        </Link>
+      </div>
     </div>
   );
 }
