@@ -71,13 +71,9 @@ export class UserClubService {
   async getUsersWithRolesForClubByName(clubName: string, userId: string) {
     const club = await this.clubService.findOneByName(clubName);
 
-    console.log(club);
-
     if (!club) {
       throw new Error('Club not found');
     }
-
-    console.log(userId);
 
     const currentUserClub = await this.userClubRepository.findOne({
       where: {
@@ -86,8 +82,6 @@ export class UserClubService {
         role: In([UserRole.OWNER, UserRole.ADMIN]),
       },
     });
-
-    console.log(currentUserClub);
 
     if (!currentUserClub) {
       throw new Error(
