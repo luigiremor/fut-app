@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateClubDto } from './dto/create-club.dto';
 import { UpdateClubDto } from './dto/update-club.dto';
 import { Repository } from 'typeorm';
@@ -96,7 +96,10 @@ export class ClubsService {
     });
 
     if (!inviteToken || new Date() > inviteToken.expiresAt) {
-      throw new Error('Invalid or expired invite token');
+      throw new HttpException(
+        'Invalid or expired invite token',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const createUserClubDto: CreateUserClubDto = {

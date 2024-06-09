@@ -62,19 +62,32 @@ export class ClubsController {
   }
 
   @UseGuards(AuthGuard)
+  @Get(':name/is-admin')
+  async isUserAdmin(@Param('name') name: string, @Req() request: any) {
+    const userId = request.user.sub;
+
+    const club = await this.clubsService.findOneByName(name);
+
+    return await this.userClubService.hasUserAdminPermissionByClubId(
+      userId,
+      club.id,
+    );
+  }
+
+  @UseGuards(AuthGuard)
   @Post('invite')
   async generateInviteLink(
     @Body() createInviteLinkDto: CreateInviteLinkDto,
     @Req() request: any,
   ) {
     const userId = request.user.sub;
-    const hasUserAdminPermission =
-      await this.userClubService.hasUserAdminPermission(
+    const hasUserAdminPermissionByClubId =
+      await this.userClubService.hasUserAdminPermissionByClubId(
         userId,
         createInviteLinkDto.clubId,
       );
 
-    if (!hasUserAdminPermission) {
+    if (!hasUserAdminPermissionByClubId) {
       throw new HttpException(
         'You do not have permission to generate an invite link',
         HttpStatus.FORBIDDEN,

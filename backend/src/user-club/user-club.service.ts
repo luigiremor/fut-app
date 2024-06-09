@@ -1,4 +1,10 @@
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { CreateUserClubDto } from './dto/create-user-club.dto';
 import { UpdateUserClubDto } from './dto/update-user-club.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -46,15 +52,46 @@ export class UserClubService {
     });
   }
 
-  update(id: string, updateUserClubDto: UpdateUserClubDto) {
-    return this.userClubRepository.update(id, updateUserClubDto);
+  async update(id: string, updateUserClubDto: UpdateUserClubDto) {
+    const userClub = await this.userClubRepository.findOne({
+      where: { id },
+      relations: ['user', 'club'],
+    });
+
+    if (!userClub) {
+      throw new HttpException('UserClub not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (updateUserClubDto.clubId) {
+      const club = await this.clubService.findOne(updateUserClubDto.clubId);
+      if (!club) {
+        throw new HttpException('Club not found', HttpStatus.NOT_FOUND);
+      }
+      userClub.club = club;
+    }
+
+    if (updateUserClubDto.userId) {
+      const user = await this.userService.findUserById(
+        updateUserClubDto.userId,
+      );
+      if (!user) {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      }
+      userClub.user = user;
+    }
+
+    if (updateUserClubDto.role) {
+      userClub.role = updateUserClubDto.role;
+    }
+
+    return this.userClubRepository.save(userClub);
   }
 
   remove(id: number) {
     return this.userClubRepository.delete(id);
   }
 
-  async hasUserAdminPermission(
+  async hasUserAdminPermissionByClubId(
     userId: string,
     clubId: string,
   ): Promise<boolean> {
@@ -91,7 +128,7 @@ export class UserClubService {
 
     const usersWithRoles = await this.userClubRepository.find({
       where: { club: { id: club.id } },
-      relations: ['user'],
+      relations: ['user', 'club'],
     });
 
     return usersWithRoles;

@@ -8,6 +8,8 @@ import {
   Delete,
   Req,
   UseGuards,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { UserClubService } from './user-club.service';
 import { CreateUserClubDto } from './dto/create-user-club.dto';
@@ -36,29 +38,47 @@ export class UserClubController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Req() req,
     @Body() updateUserClubDto: UpdateUserClubDto,
   ) {
-    const userId = req.user.id;
+    const userId = req.user.sub;
 
-    const hasUserPermission = this.userClubService.hasUserAdminPermission(
-      userId,
-      updateUserClubDto.clubId,
-    );
+    const userClub = await this.userClubService.findOne(id);
+
+    console.log('userClub', userClub);
+
+    const hasUserPermission =
+      await this.userClubService.hasUserAdminPermissionByClubId(
+        userId,
+        updateUserClubDto.clubId,
+      );
+
+    console.log('hasUserPermission', hasUserPermission);
 
     if (!hasUserPermission) {
-      throw new Error('You are not allowed to update this user role');
+      throw new HttpException(
+        'You are not allowed to update this user role',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     if (updateUserClubDto.role === UserRole.OWNER) {
-      throw new Error('You are not allowed to update user role to owner');
+      throw new HttpException(
+        'You are not allowed to update user role to owner',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
-    if (updateUserClubDto.userId === userId) {
-      throw new Error('You are not allowed to update your own user role');
+    if (userClub.user.id === userId) {
+      throw new HttpException(
+        'You are not allowed to update your own user role',
+        HttpStatus.FORBIDDEN,
+      );
     }
+
+    console.log('updateUserClubDto', updateUserClubDto);
 
     return this.userClubService.update(id, updateUserClubDto);
   }

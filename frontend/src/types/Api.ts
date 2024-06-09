@@ -42,6 +42,15 @@ export interface UpdateClubDto {
   name?: string;
 }
 
+export interface CreateInviteLinkDto {
+  clubId: string;
+}
+
+export interface InviteClubDto {
+  clubId: string;
+  inviteToken: string;
+}
+
 export interface CreateUserClubDto {
   userId: string;
   clubId: string;
@@ -451,6 +460,57 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/clubs/user/me`,
         method: 'GET',
         secure: true,
+        format: 'json',
+        ...params
+      }),
+
+    /**
+     * No description
+     *
+     * @name ClubsControllerIsUserAdmin
+     * @request GET:/clubs/{name}/is-admin
+     * @secure
+     */
+    clubsControllerIsUserAdmin: (name: string, params: RequestParams = {}) =>
+      this.request<boolean, any>({
+        path: `/clubs/${name}/is-admin`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params
+      }),
+
+    /**
+     * No description
+     *
+     * @name ClubsControllerGenerateInviteLink
+     * @request POST:/clubs/invite
+     * @secure
+     */
+    clubsControllerGenerateInviteLink: (data: CreateInviteLinkDto, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/clubs/invite`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params
+      }),
+
+    /**
+     * No description
+     *
+     * @name ClubsControllerJoinClub
+     * @request POST:/clubs/join
+     * @secure
+     */
+    clubsControllerJoinClub: (data: InviteClubDto, params: RequestParams = {}) =>
+      this.request<UserClub, any>({
+        path: `/clubs/join`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         format: 'json',
         ...params
       })
