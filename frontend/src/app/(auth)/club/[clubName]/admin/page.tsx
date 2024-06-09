@@ -1,5 +1,5 @@
+import { DeleteUserClubButton } from '@/components/club/delete-user-club-button';
 import { SelectRole } from '@/components/club/select-role';
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardHeader,
@@ -15,10 +15,9 @@ import {
   TableBody,
   TableCell
 } from '@/components/ui/table';
-import { getClubMembers } from '@/resolver/get-club-members';
-import { getHasAdminPermission } from '@/resolver/get-has-admin-permission';
+import { getHasAdminPermission } from '@/resolver/club/get-has-admin-permission';
+import { getClubMembers } from '@/resolver/user-club/get-club-members';
 import { UpdateUserClubDto, UserClub } from '@/types/Api';
-import { Trash } from 'lucide-react';
 
 export default async function ClubAdminView({
   params
@@ -28,8 +27,6 @@ export default async function ClubAdminView({
   const { clubName } = params;
 
   const clubMembers: UserClub[] = await getClubMembers(clubName);
-
-  console.log(clubMembers);
 
   const hasUserAdminPermission = await getHasAdminPermission(clubName);
 
@@ -49,29 +46,24 @@ export default async function ClubAdminView({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {clubMembers.map((member) => (
-              <TableRow key={member.id} className="odd:bg-accent">
-                <TableCell>{member.user.username}</TableCell>
+            {clubMembers.map((userClub) => (
+              <TableRow key={userClub.id} className="odd:bg-accent">
+                <TableCell>{userClub.user.username}</TableCell>
                 {!hasUserAdminPermission && (
-                  <TableCell>{member.role}</TableCell>
+                  <TableCell>{userClub.role}</TableCell>
                 )}
                 {hasUserAdminPermission && (
                   <TableCell>
                     <SelectRole
-                      userClubId={member.id}
-                      clubId={member.club.id}
-                      role={member.role as UpdateUserClubDto['role']}
+                      userClubId={userClub.id}
+                      clubId={userClub.club.id}
+                      role={userClub.role as UpdateUserClubDto['role']}
                     />
                   </TableCell>
                 )}
                 {hasUserAdminPermission && (
                   <TableCell>
-                    <Button
-                      variant="destructive"
-                      disabled={member.role === 'owner'}
-                    >
-                      <Trash />
-                    </Button>
+                    <DeleteUserClubButton userClub={userClub} />
                   </TableCell>
                 )}
               </TableRow>

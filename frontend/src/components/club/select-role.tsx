@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { updateRole } from '@/resolver/update-member-role';
+import { updateRole } from '@/resolver/user-club/update-member-role';
 
 export const SelectRole = ({
   userClubId,

@@ -97,8 +97,33 @@ export class UserClubController {
     );
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userClubService.remove(+id);
+  async remove(@Param('id') id: string, @Req() req) {
+    const userId = req.user.sub;
+
+    const userClub = await this.userClubService.findOne(id);
+
+    if (userClub.role === UserRole.OWNER) {
+      throw new HttpException(
+        'You are not allowed to remove the owner of the club',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const hasUserPermission =
+      this.userClubService.hasUserAdminPermissionByClubId(
+        userId,
+        userClub.club.id,
+      );
+
+    if (!hasUserPermission) {
+      throw new HttpException(
+        'You are not allowed to remove this user',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    return this.userClubService.remove(id);
   }
 }

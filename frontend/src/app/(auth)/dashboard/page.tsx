@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { getMyClubs } from '@/resolver/get-my-clubs';
+import { getMyClubs } from '@/resolver/club/get-my-clubs';
 import { paths } from '@/utils/paths';
 import Link from 'next/link';
 import { FaArrowRightLong } from 'react-icons/fa6';

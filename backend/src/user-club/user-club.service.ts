@@ -87,7 +87,7 @@ export class UserClubService {
     return this.userClubRepository.save(userClub);
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this.userClubRepository.delete(id);
   }
 
