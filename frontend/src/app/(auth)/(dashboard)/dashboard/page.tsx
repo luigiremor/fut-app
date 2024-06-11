@@ -8,6 +8,8 @@ import { paths } from '@/utils/paths';
 import Link from 'next/link';
 import { FaArrowRightLong } from 'react-icons/fa6';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Dashboard() {
   const myClubs = await getMyClubs();
 

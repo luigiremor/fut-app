@@ -1,8 +1,8 @@
-import { IsString, IsUUID } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class InviteClubDto {
-  @IsUUID()
-  clubId: string;
+  @IsString()
+  clubName: string;
 
   @IsString()
   inviteToken: string;

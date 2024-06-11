@@ -67,20 +67,24 @@ export class ClubsService {
     return this.clubRepository.delete({ name });
   }
 
-  async generateInviteLink(clubId: string): Promise<string> {
+  async generateInviteLink(clubName: string): Promise<string> {
+    const club = await this.clubRepository.findOne({
+      where: { name: clubName },
+    });
+
     const inviteToken = crypto.randomBytes(16).toString('hex');
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 1);
 
     const newInviteToken = this.inviteTokenRepository.create({
       token: inviteToken,
-      club: { id: clubId },
+      club: { id: club.id },
       expiresAt,
     });
 
     await this.inviteTokenRepository.save(newInviteToken);
 
-    return `${process.env.FRONTEND_DOMAIN}/clubs/join?clubId=${clubId}&inviteToken=${inviteToken}`;
+    return `${process.env.FRONTEND_DOMAIN}/join?clubName=${clubName}&inviteToken=${inviteToken}`;
   }
 
   async joinClub(
@@ -90,7 +94,7 @@ export class ClubsService {
     const inviteToken = await this.inviteTokenRepository.findOne({
       where: {
         token: inviteClubDto.inviteToken,
-        club: { id: inviteClubDto.clubId },
+        club: { name: inviteClubDto.clubName },
       },
       relations: ['club'],
     });

@@ -1,6 +1,7 @@
 import api from '@/services/api';
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { isAfter } from 'date-fns';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -54,6 +55,7 @@ export const authOptions: NextAuthOptions = {
           user: token.user
         };
       }
+
       return session;
     }
   },

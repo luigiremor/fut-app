@@ -81,10 +81,15 @@ export class ClubsController {
     @Req() request: any,
   ) {
     const userId = request.user.sub;
+
+    const club = await this.clubsService.findOneByName(
+      createInviteLinkDto.clubName,
+    );
+
     const hasUserAdminPermissionByClubId =
       await this.userClubService.hasUserAdminPermissionByClubId(
         userId,
-        createInviteLinkDto.clubId,
+        club.id,
       );
 
     if (!hasUserAdminPermissionByClubId) {
@@ -95,7 +100,7 @@ export class ClubsController {
     }
 
     const inviteLink = await this.clubsService.generateInviteLink(
-      createInviteLinkDto.clubId,
+      createInviteLinkDto.clubName,
     );
     return { inviteLink };
   }
@@ -104,6 +109,23 @@ export class ClubsController {
   @Post('join')
   async joinClub(@Body() inviteClubDto: InviteClubDto, @Req() request: any) {
     const userId = request.user.sub;
+
+    console.log('inviteClubDto', inviteClubDto);
+
+    const club = await this.clubsService.findOneByName(inviteClubDto.clubName);
+
+    const userClub = await this.userClubService.findUserClubByUserIdAndClubId(
+      userId,
+      club.id,
+    );
+
+    if (userClub) {
+      throw new HttpException(
+        'You are already a member of this club',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     return this.clubsService.joinClub(inviteClubDto, userId);
   }
 }

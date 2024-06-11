@@ -2,10 +2,11 @@ export const paths = {
   auth: {
     dashboard: '/dashboard',
     club: {
-      create: '/club/create',
+      create: '/club/create'
     },
+    join: '/join'
   },
   public: {
-    home: '/',
-  },
-}
+    home: '/'
+  }
+};

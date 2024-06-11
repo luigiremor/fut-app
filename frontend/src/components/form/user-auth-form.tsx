@@ -38,15 +38,21 @@ async function registerUser(data: AuthenticationSchema) {
   return await api.post('/auth/register', data);
 }
 
-async function loginUser(data: AuthenticationSchema) {
+async function loginUser({
+  data,
+  redirectTo
+}: {
+  data: AuthenticationSchema;
+  redirectTo?: string;
+}) {
   return signIn('credentials', {
-    callbackUrl: '/dashboard',
+    callbackUrl: redirectTo ?? '/dashboard',
     username: data.username,
     password: data.password
   });
 }
 
-export function UserAuthForm() {
+export function UserAuthForm({ redirectTo }: { redirectTo?: string }) {
   const [isRegister, setIsRegister] = useState(false);
   const router = useRouter();
 
@@ -70,7 +76,7 @@ export function UserAuthForm() {
       return;
     }
 
-    const loginPromise = loginUser(data);
+    const loginPromise = loginUser({ data, redirectTo });
 
     toast.promise(loginPromise, {
       loading: 'Signing in...',

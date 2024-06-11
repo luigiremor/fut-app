@@ -5,7 +5,13 @@ import { paths } from '@/utils/paths';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-export default async function AuthenticationPage() {
+export default async function AuthenticationPage({
+  searchParams
+}: {
+  searchParams: {
+    redirectTo: string;
+  };
+}) {
   const session = await getSession();
 
   if (session?.accessToken) return redirect(paths.auth.dashboard);
@@ -21,7 +27,7 @@ export default async function AuthenticationPage() {
       </div>
       <div className="lg:p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-          <UserAuthForm />
+          <UserAuthForm redirectTo={searchParams.redirectTo} />
           <p className="px-8 text-center text-sm text-muted-foreground">
             By clicking continue, you agree to our{' '}
             <Link

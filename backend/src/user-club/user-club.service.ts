@@ -105,24 +105,35 @@ export class UserClubService {
     return !!userClub;
   }
 
+  async findUserClubByUserIdAndClubId(
+    userId: string,
+    clubId: string,
+  ): Promise<UserClub> {
+    const userClub = await this.userClubRepository.findOne({
+      where: { user: { id: userId }, club: { id: clubId } },
+    });
+
+    return userClub;
+  }
+
   async getUsersWithRolesForClubByName(clubName: string, userId: string) {
     const club = await this.clubService.findOneByName(clubName);
 
     if (!club) {
-      throw new Error('Club not found');
+      throw new HttpException('Club not found', HttpStatus.NOT_FOUND);
     }
 
     const currentUserClub = await this.userClubRepository.findOne({
       where: {
         user: { id: userId },
         club: { id: club.id },
-        role: In([UserRole.OWNER, UserRole.ADMIN]),
       },
     });
 
     if (!currentUserClub) {
-      throw new Error(
-        'You do not have permission to manage user roles for this club',
+      throw new HttpException(
+        'You do not have permission to view users for this club',
+        HttpStatus.FORBIDDEN,
       );
     }
 

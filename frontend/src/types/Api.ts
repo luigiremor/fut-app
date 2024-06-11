@@ -43,11 +43,11 @@ export interface UpdateClubDto {
 }
 
 export interface CreateInviteLinkDto {
-  clubId: string;
+  clubName: string;
 }
 
 export interface InviteClubDto {
-  clubId: string;
+  clubName: string;
   inviteToken: string;
 }
 
@@ -574,12 +574,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @secure
      */
     userClubControllerUpdate: (id: string, data: UpdateUserClubDto, params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<UserClub, any>({
         path: `/user-club/${id}`,
         method: 'PATCH',
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: 'json',
         ...params
       }),
 

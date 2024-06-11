@@ -2,18 +2,25 @@ import { ManageRolesCard } from '@/components/club/manage-roles-card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { getHasAdminPermission } from '@/resolver/club/get-has-admin-permission';
 
-export default function ClubPage({ params }: { params: { clubName: string } }) {
+export default async function ClubPage({
+  params
+}: {
+  params: { clubName: string };
+}) {
   const { clubName } = params;
 
   const decodedClubName = decodeURIComponent(clubName);
+
+  const hasUserAdminPermission = await getHasAdminPermission(decodedClubName);
 
   return (
     <div className="">
       <section className="mb-8">
         <h2 className="text-3xl font-bold mb-2">{decodedClubName} Dashboard</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <ManageRolesCard />
+          <ManageRolesCard hasAdminPermission={hasUserAdminPermission} />
           <Card className="col-span-1 md:col-span-2 lg:col-span-2">
             <CardHeader>
               <CardTitle>Upcoming Games</CardTitle>
