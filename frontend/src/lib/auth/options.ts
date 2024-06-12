@@ -36,6 +36,9 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
     maxAge: 60 * 60 // 1 hour
   },
+  jwt: {
+    maxAge: 60 * 60 // 1 hour
+  },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, user }) {

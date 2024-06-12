@@ -56,9 +56,10 @@ export class ClubsController {
 
   @UseGuards(AuthGuard)
   @Get('user/me')
-  findClubsByUser(@Req() request: any) {
+  async findClubsByUser(@Req() request: any) {
     const userId = request.user.sub;
-    return this.clubsService.findClubsByUser(userId);
+    const user = await this.clubsService.findClubsByUser(userId);
+    return user;
   }
 
   @UseGuards(AuthGuard)

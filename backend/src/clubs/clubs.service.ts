@@ -56,6 +56,8 @@ export class ClubsService {
         'userClub.userId = :userId',
         { userId },
       )
+      .leftJoinAndSelect('club.userClubs', 'allUserClubs')
+      .leftJoinAndSelect('allUserClubs.user', 'user')
       .getMany();
   }
 
