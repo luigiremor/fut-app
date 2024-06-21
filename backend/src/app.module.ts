@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UserClubModule } from './user-club/user-club.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { MatchModule } from './matches/matches.module';
+import { PlayerRatingsModule } from './player-ratings/player-ratings.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { MatchModule } from './matches/matches.module';
     ClubsModule,
     UserClubModule,
     MatchModule,
+    PlayerRatingsModule,
   ],
   controllers: [AppController],
   providers: [

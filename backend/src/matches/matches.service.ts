@@ -57,4 +57,11 @@ export class MatchService {
     match.confirmedUsers.push(userClub.user);
     return this.matchRepository.save(match);
   }
+
+  async findOne(id: string, options?: any): Promise<Match> {
+    return this.matchRepository.findOne({
+      where: { id },
+      ...options,
+    });
+  }
 }

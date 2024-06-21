@@ -16,5 +16,6 @@ import { AuthModule } from 'src/auth/auth.module';
   ],
   providers: [MatchService],
   controllers: [MatchController],
+  exports: [MatchService],
 })
 export class MatchModule {}

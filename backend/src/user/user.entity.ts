@@ -1,4 +1,5 @@
 import { Exclude } from 'class-transformer';
+import { PlayerRating } from 'src/player-ratings/entities/player-rating.entity';
 import { UserClub } from 'src/user-club/entities/user-club.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -16,4 +17,10 @@ export class User {
 
   @OneToMany(() => UserClub, (userClub) => userClub.user)
   userClubs: UserClub[];
+
+  @OneToMany(() => PlayerRating, (rating) => rating.reviewer)
+  givenRatings: PlayerRating[];
+
+  @OneToMany(() => PlayerRating, (rating) => rating.reviewee)
+  receivedRatings: PlayerRating[];
 }

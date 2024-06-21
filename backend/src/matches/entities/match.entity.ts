@@ -5,9 +5,11 @@ import {
   ManyToOne,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import { Club } from '../../clubs/entities/club.entity';
 import { User } from '../../user/user.entity';
+import { PlayerRating } from 'src/player-ratings/entities/player-rating.entity';
 
 @Entity()
 export class Match {
@@ -32,4 +34,7 @@ export class Match {
 
   @Column()
   location: string;
+
+  @OneToMany(() => PlayerRating, (rating) => rating.match)
+  ratings: PlayerRating[];
 }
