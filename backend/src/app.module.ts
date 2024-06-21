@@ -7,6 +7,7 @@ import { ClubsModule } from './clubs/clubs.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserClubModule } from './user-club/user-club.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { MatchModule } from './matches/matches.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
     AuthModule,
     ClubsModule,
     UserClubModule,
+    MatchModule,
   ],
   controllers: [AppController],
   providers: [

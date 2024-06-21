@@ -21,9 +21,20 @@ export interface User {
   userClubs: UserClub[];
 }
 
+export interface Match {
+  id: string;
+  club: Club;
+  confirmedUsers: User[];
+  goals: string[];
+  assists: string[];
+  date: string;
+  location: string;
+}
+
 export interface Club {
   id: string;
   name: string;
+  matches: Match[];
   userClubs: UserClub[];
 }
 
@@ -63,6 +74,12 @@ export interface UpdateUserClubDto {
   role?: 'admin' | 'owner' | 'member';
 }
 
+export interface CreateMatchDto {
+  clubId: string;
+  date: string;
+  location: string;
+}
+
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, 'body' | 'bodyUsed'>;
 
@@ -85,16 +102,22 @@ export interface FullRequestParams extends Omit<RequestInit, 'body'> {
   cancelToken?: CancelToken;
 }
 
-export type RequestParams = Omit<FullRequestParams, 'body' | 'method' | 'query' | 'path'>;
+export type RequestParams = Omit<
+  FullRequestParams,
+  'body' | 'method' | 'query' | 'path'
+>;
 
 export interface ApiConfig<SecurityDataType = unknown> {
   baseUrl?: string;
   baseApiParams?: Omit<RequestParams, 'baseUrl' | 'cancelToken' | 'signal'>;
-  securityWorker?: (securityData: SecurityDataType | null) => Promise<RequestParams | void> | RequestParams | void;
+  securityWorker?: (
+    securityData: SecurityDataType | null
+  ) => Promise<RequestParams | void> | RequestParams | void;
   customFetch?: typeof fetch;
 }
 
-export interface HttpResponse<D extends unknown, E extends unknown = unknown> extends Response {
+export interface HttpResponse<D extends unknown, E extends unknown = unknown>
+  extends Response {
   data: D;
   error: E;
 }
@@ -113,7 +136,8 @@ export class HttpClient<SecurityDataType = unknown> {
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>['securityWorker'];
   private abortControllers = new Map<CancelToken, AbortController>();
-  private customFetch = (...fetchParams: Parameters<typeof fetch>) => fetch(...fetchParams);
+  private customFetch = (...fetchParams: Parameters<typeof fetch>) =>
+    fetch(...fetchParams);
 
   private baseApiParams: RequestParams = {
     credentials: 'same-origin',
@@ -132,7 +156,9 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected encodeQueryParam(key: string, value: any) {
     const encodedKey = encodeURIComponent(key);
-    return `${encodedKey}=${encodeURIComponent(typeof value === 'number' ? value : `${value}`)}`;
+    return `${encodedKey}=${encodeURIComponent(
+      typeof value === 'number' ? value : `${value}`
+    )}`;
   }
 
   protected addQueryParam(query: QueryParamsType, key: string) {
@@ -146,9 +172,15 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected toQueryString(rawQuery?: QueryParamsType): string {
     const query = rawQuery || {};
-    const keys = Object.keys(query).filter((key) => 'undefined' !== typeof query[key]);
+    const keys = Object.keys(query).filter(
+      (key) => 'undefined' !== typeof query[key]
+    );
     return keys
-      .map((key) => (Array.isArray(query[key]) ? this.addArrayQueryParam(query, key) : this.addQueryParam(query, key)))
+      .map((key) =>
+        Array.isArray(query[key])
+          ? this.addArrayQueryParam(query, key)
+          : this.addQueryParam(query, key)
+      )
       .join('&');
   }
 
@@ -159,8 +191,13 @@ export class HttpClient<SecurityDataType = unknown> {
 
   private contentFormatters: Record<ContentType, (input: any) => any> = {
     [ContentType.Json]: (input: any) =>
-      input !== null && (typeof input === 'object' || typeof input === 'string') ? JSON.stringify(input) : input,
-    [ContentType.Text]: (input: any) => (input !== null && typeof input !== 'string' ? JSON.stringify(input) : input),
+      input !== null && (typeof input === 'object' || typeof input === 'string')
+        ? JSON.stringify(input)
+        : input,
+    [ContentType.Text]: (input: any) =>
+      input !== null && typeof input !== 'string'
+        ? JSON.stringify(input)
+        : input,
     [ContentType.FormData]: (input: any) =>
       Object.keys(input || {}).reduce((formData, key) => {
         const property = input[key];
@@ -177,7 +214,10 @@ export class HttpClient<SecurityDataType = unknown> {
     [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input)
   };
 
-  protected mergeRequestParams(params1: RequestParams, params2?: RequestParams): RequestParams {
+  protected mergeRequestParams(
+    params1: RequestParams,
+    params2?: RequestParams
+  ): RequestParams {
     return {
       ...this.baseApiParams,
       ...params1,
@@ -190,7 +230,9 @@ export class HttpClient<SecurityDataType = unknown> {
     };
   }
 
-  protected createAbortSignal = (cancelToken: CancelToken): AbortSignal | undefined => {
+  protected createAbortSignal = (
+    cancelToken: CancelToken
+  ): AbortSignal | undefined => {
     if (this.abortControllers.has(cancelToken)) {
       const abortController = this.abortControllers.get(cancelToken);
       if (abortController) {
@@ -234,15 +276,28 @@ export class HttpClient<SecurityDataType = unknown> {
     const payloadFormatter = this.contentFormatters[type || ContentType.Json];
     const responseFormat = format || requestParams.format;
 
-    return this.customFetch(`${baseUrl || this.baseUrl || ''}${path}${queryString ? `?${queryString}` : ''}`, {
-      ...requestParams,
-      headers: {
-        ...(requestParams.headers || {}),
-        ...(type && type !== ContentType.FormData ? { 'Content-Type': type } : {})
-      },
-      signal: (cancelToken ? this.createAbortSignal(cancelToken) : requestParams.signal) || null,
-      body: typeof body === 'undefined' || body === null ? null : payloadFormatter(body)
-    }).then(async (response) => {
+    return this.customFetch(
+      `${baseUrl || this.baseUrl || ''}${path}${
+        queryString ? `?${queryString}` : ''
+      }`,
+      {
+        ...requestParams,
+        headers: {
+          ...(requestParams.headers || {}),
+          ...(type && type !== ContentType.FormData
+            ? { 'Content-Type': type }
+            : {})
+        },
+        signal:
+          (cancelToken
+            ? this.createAbortSignal(cancelToken)
+            : requestParams.signal) || null,
+        body:
+          typeof body === 'undefined' || body === null
+            ? null
+            : payloadFormatter(body)
+      }
+    ).then(async (response) => {
       const r = response.clone() as HttpResponse<T, E>;
       r.data = null as unknown as T;
       r.error = null as unknown as E;
@@ -274,13 +329,15 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title Soccer Match
+ * @title Soccer Matches
  * @version 1.0
  * @contact
  *
- * The Soccer Match API
+ * The Soccer Matches API
  */
-export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
+export class Api<
+  SecurityDataType extends unknown
+> extends HttpClient<SecurityDataType> {
   /**
    * No description
    *
@@ -423,7 +480,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request PATCH:/clubs/{name}
      * @secure
      */
-    clubsControllerUpdate: (name: string, data: UpdateClubDto, params: RequestParams = {}) =>
+    clubsControllerUpdate: (
+      name: string,
+      data: UpdateClubDto,
+      params: RequestParams = {}
+    ) =>
       this.request<void, any>({
         path: `/clubs/${name}`,
         method: 'PATCH',
@@ -487,7 +548,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/clubs/invite
      * @secure
      */
-    clubsControllerGenerateInviteLink: (data: CreateInviteLinkDto, params: RequestParams = {}) =>
+    clubsControllerGenerateInviteLink: (
+      data: CreateInviteLinkDto,
+      params: RequestParams = {}
+    ) =>
       this.request<void, any>({
         path: `/clubs/invite`,
         method: 'POST',
@@ -504,7 +568,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/clubs/join
      * @secure
      */
-    clubsControllerJoinClub: (data: InviteClubDto, params: RequestParams = {}) =>
+    clubsControllerJoinClub: (
+      data: InviteClubDto,
+      params: RequestParams = {}
+    ) =>
       this.request<UserClub, any>({
         path: `/clubs/join`,
         method: 'POST',
@@ -523,7 +590,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/user-club
      * @secure
      */
-    userClubControllerCreate: (data: CreateUserClubDto, params: RequestParams = {}) =>
+    userClubControllerCreate: (
+      data: CreateUserClubDto,
+      params: RequestParams = {}
+    ) =>
       this.request<UserClub, any>({
         path: `/user-club`,
         method: 'POST',
@@ -573,7 +643,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request PATCH:/user-club/{id}
      * @secure
      */
-    userClubControllerUpdate: (id: string, data: UpdateUserClubDto, params: RequestParams = {}) =>
+    userClubControllerUpdate: (
+      id: string,
+      data: UpdateUserClubDto,
+      params: RequestParams = {}
+    ) =>
       this.request<UserClub, any>({
         path: `/user-club/${id}`,
         method: 'PATCH',
@@ -606,10 +680,51 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/user-club/club/{clubName}/users
      * @secure
      */
-    userClubControllerGetUsersWithRolesForClubByName: (clubName: string, params: RequestParams = {}) =>
+    userClubControllerGetUsersWithRolesForClubByName: (
+      clubName: string,
+      params: RequestParams = {}
+    ) =>
       this.request<UserClub[], any>({
         path: `/user-club/club/${clubName}/users`,
         method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params
+      })
+  };
+  matches = {
+    /**
+     * No description
+     *
+     * @name MatchControllerCreate
+     * @request POST:/matches
+     * @secure
+     */
+    matchControllerCreate: (data: CreateMatchDto, params: RequestParams = {}) =>
+      this.request<Match, any>({
+        path: `/matches`,
+        method: 'POST',
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: 'json',
+        ...params
+      }),
+
+    /**
+     * No description
+     *
+     * @name MatchControllerConfirmParticipation
+     * @request POST:/matches/{id}/confirm
+     * @secure
+     */
+    matchControllerConfirmParticipation: (
+      id: string,
+      params: RequestParams = {}
+    ) =>
+      this.request<Match, any>({
+        path: `/matches/${id}/confirm`,
+        method: 'POST',
         secure: true,
         format: 'json',
         ...params

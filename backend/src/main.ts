@@ -6,8 +6,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('Soccer Match')
-    .setDescription('The Soccer Match API')
+    .setTitle('Soccer Matches')
+    .setDescription('The Soccer Matches API')
     .setVersion('1.0')
     .addBearerAuth({
       type: 'http',
