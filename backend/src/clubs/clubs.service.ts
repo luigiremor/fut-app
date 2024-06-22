@@ -44,7 +44,10 @@ export class ClubsService {
   }
 
   findOneByName(name: string) {
-    return this.clubRepository.findOne({ where: { name } });
+    return this.clubRepository.findOne({
+      where: { name },
+      relations: ['userClubs', 'matches'],
+    });
   }
 
   async findClubsByUser(userId: string): Promise<Club[]> {

@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Param, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Param,
+  Req,
+  UseGuards,
+  Get,
+} from '@nestjs/common';
 import { MatchService } from './matches.service';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -21,5 +29,10 @@ export class MatchController {
       userId,
       confirmParticipationDto,
     );
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return this.matchService.findOne(id);
   }
 }
