@@ -2,6 +2,13 @@ import { Icons } from '@/components/common/icons';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNonRelativeNext,
+  CarouselNonRelativePrevious
+} from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
 import { getMyClubs } from '@/resolver/club/get-my-clubs';
 import { paths } from '@/utils/paths';
@@ -14,53 +21,63 @@ export default async function Dashboard() {
   const myClubs = await getMyClubs();
 
   return (
-    <div className="grid space-y-4">
-      <section>
-        <h1 className="text-3xl font-bold">Upcoming Matches</h1>
-        <div className="snap-x snap-mandatory overflow-x-auto flex space-x-4 py-4">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <Card
-              key={index}
-              className="snap-start flex-shrink-0 sm:min-w-[calc(100%-1rem)] md:min-w-[calc(50%-1rem)] lg:min-w-[calc(30%-1rem)]"
-            >
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <Avatar>
-                      <AvatarFallback>TA</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h3 className="text-lg font-bold">Team A</h3>
+    <div className="flex flex-col space-y-4 ">
+      <section className="">
+        <Carousel>
+          <div className="flex justify-between">
+            <h1 className="text-3xl font-bold">Upcoming Matches</h1>
+          </div>
+          <CarouselContent className="py-4">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <CarouselItem
+                key={`carousel-${index}`}
+                className="sm:basis-1/2 lg:basis-1/3"
+              >
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <Avatar>
+                          <AvatarFallback>TA</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="text-lg font-bold">Team A</h3>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-4 bg-primary/20 px-2 rounded-full text-primary">
+                        <p>10/16</p>
+                        <Icons.users className="size-4" />
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-4 bg-primary/20 px-2 rounded-full text-primary">
-                    <p>10/16</p>
-                    <Icons.users className="size-4" />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex justify-between items-center">
-                  <div className="text-secondary-foreground">
-                    <div className="flex items-center space-x-2">
-                      <Icons.calendar className="size-5" />
-                      <p>May 30, 2024</p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-between items-center">
+                      <div className="text-secondary-foreground">
+                        <div className="flex items-center space-x-2">
+                          <Icons.calendar className="size-5" />
+                          <p>May 30, 2024</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Icons.clock className="size-5" />
+                          <p>7:00 PM</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Icons.map className="size-5" />
+                          <p>Field 1</p>
+                        </div>
+                      </div>
+                      <Button>Join</Button>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Icons.clock className="size-5" />
-                      <p>7:00 PM</p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Icons.map className="size-5" />
-                      <p>Field 1</p>
-                    </div>
-                  </div>
-                  <Button>Join</Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  </CardContent>
+                </Card>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <div className="flex gap-2">
+            <CarouselNonRelativePrevious />
+            <CarouselNonRelativeNext />
+          </div>
+        </Carousel>
       </section>
       <section>
         <div className="flex justify-between">
@@ -78,13 +95,10 @@ export default async function Dashboard() {
             Create club
           </Link>
         </div>
-        <div className="snap-x snap-mandatory overflow-x-auto flex space-x-4 py-4">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2 py-4">
           {myClubs.map((club) => {
             return (
-              <Card
-                key={club.name}
-                className="snap-start flex-shrink-0 sm:min-w-[calc(100%-1rem)] md:min-w-[calc(50%-1rem)] lg:min-w-[calc(30%-1rem)]"
-              >
+              <Card key={club.name} className="">
                 <CardHeader className="flex flex-row justify-between">
                   <div className="flex items-center space-x-4">
                     <Avatar>
