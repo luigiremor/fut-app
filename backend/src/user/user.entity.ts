@@ -1,7 +1,14 @@
 import { Exclude } from 'class-transformer';
+import { Match } from 'src/matches/entities/match.entity';
 import { PlayerRating } from 'src/player-ratings/entities/player-rating.entity';
 import { UserClub } from 'src/user-club/entities/user-club.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class User {
@@ -23,4 +30,13 @@ export class User {
 
   @OneToMany(() => PlayerRating, (rating) => rating.reviewee)
   receivedRatings: PlayerRating[];
+
+  @ManyToMany(() => Match, (match) => match.confirmedUsers)
+  matches: Match[];
+
+  @ManyToMany(() => Match, (match) => match.teamA)
+  teamAMatches: Match[];
+
+  @ManyToMany(() => Match, (match) => match.teamB)
+  teamBMatches: Match[];
 }

@@ -11,14 +11,31 @@ import {
 } from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
 import { getMyClubs } from '@/resolver/club/get-my-clubs';
+import api from '@/services/api';
 import { paths } from '@/utils/paths';
 import Link from 'next/link';
 import { FaArrowRightLong } from 'react-icons/fa6';
 
 export const dynamic = 'force-dynamic';
 
+const getMyInfo = async () => {
+  return await api.get('/users/me');
+};
+
+const getUpcomingMatches = async () => {
+  return await api.get('/matches/user/me/upcoming');
+};
+
 export default async function Dashboard() {
   const myClubs = await getMyClubs();
+  const myInfo = await getMyInfo();
+  const upcomingMatches = await getUpcomingMatches();
+
+  console.log(myClubs);
+
+  console.log(upcomingMatches.data);
+
+  console.log(myInfo.data);
 
   return (
     <div className="flex flex-col space-y-4 ">

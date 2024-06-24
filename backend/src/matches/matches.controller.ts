@@ -10,6 +10,8 @@ import {
 import { MatchService } from './matches.service';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { RecordGoalDto } from './dto/record-goal.dto';
+import { ConfirmParticipationDto } from './dto/confirm-participation.dto';
 
 @UseGuards(AuthGuard)
 @Controller('matches')
@@ -22,17 +24,50 @@ export class MatchController {
   }
 
   @Post(':id/confirm')
-  async confirmParticipation(@Param('id') id: string, @Req() request: any) {
+  async confirmParticipation(
+    @Param('id') id: string,
+    @Req() request: any,
+    @Body() confirmParticipationDto: ConfirmParticipationDto,
+  ) {
+    console.log('confirmParticipationDto', confirmParticipationDto);
     const userId = request.user.sub;
-    const confirmParticipationDto = { matchId: id };
+    confirmParticipationDto.matchId = id;
+
     return this.matchService.confirmParticipation(
       userId,
       confirmParticipationDto,
     );
   }
 
+  @Post(':id/divide-teams')
+  async divideTeams(@Param('id') id: string) {
+    return this.matchService.divideTeams(id);
+  }
+
+  @Post(':id/record-goal')
+  async recordGoal(
+    @Param('id') id: string,
+    @Body() recordGoalDto: RecordGoalDto,
+  ) {
+    return this.matchService.recordGoal({
+      matchId: id,
+      userId: recordGoalDto.userId,
+      team: recordGoalDto.team,
+    });
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.matchService.findOne(id);
+    const match = await this.matchService.findOne(id);
+
+    console.log('match', match);
+
+    return match;
+  }
+
+  @Get('user/me/upcoming')
+  async findUpcomingMatchesForUser(@Req() request: any) {
+    const userId = request.user.sub;
+    return this.matchService.findUpcomingMatchesForUser(userId);
   }
 }

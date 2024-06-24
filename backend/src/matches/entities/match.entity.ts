@@ -23,11 +23,22 @@ export class Match {
   @JoinTable()
   confirmedUsers: User[];
 
-  @Column('simple-array')
-  goals: string[]; // Array of user IDs
+  @ManyToMany(() => User)
+  @JoinTable()
+  teamA: User[];
 
-  @Column('simple-array')
-  assists: string[]; // Array of user IDs
+  @ManyToMany(() => User)
+  @JoinTable()
+  teamB: User[];
+
+  @Column('simple-array', { nullable: true })
+  goalsTeamA: string[]; // Array of user IDs
+
+  @Column('simple-array', { nullable: true })
+  goalsTeamB: string[]; // Array of user IDs
+
+  @Column('simple-json', { nullable: true })
+  playerPositions: { userId: string; userName: string; position: string }[];
 
   @Column()
   date: string;

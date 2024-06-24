@@ -21,7 +21,6 @@ export class PlayerRatingsService {
   ): Promise<PlayerRating> {
     const match = await this.matchService.findOne(
       createPlayerRatingDto.matchId,
-      { relations: ['confirmedUsers', 'ratings'] },
     );
     if (!match) {
       throw new HttpException('Match not found', HttpStatus.NOT_FOUND);

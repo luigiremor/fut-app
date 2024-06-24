@@ -1,10 +1,10 @@
-import { IsString, IsUUID } from 'class-validator';
+import { IsDate, IsString } from 'class-validator';
 
 export class CreateMatchDto {
-  @IsUUID()
-  clubId: string;
-
   @IsString()
+  clubName: string;
+
+  @IsDate()
   date: string;
 
   @IsString()

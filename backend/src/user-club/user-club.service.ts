@@ -111,6 +111,7 @@ export class UserClubService {
   ): Promise<UserClub> {
     const userClub = await this.userClubRepository.findOne({
       where: { user: { id: userId }, club: { id: clubId } },
+      relations: ['user', 'club'],
     });
 
     return userClub;
@@ -143,5 +144,12 @@ export class UserClubService {
     });
 
     return usersWithRoles;
+  }
+
+  async findClubsByUserId(userId: string): Promise<UserClub[]> {
+    return this.userClubRepository.find({
+      where: { user: { id: userId } },
+      relations: ['club'],
+    });
   }
 }

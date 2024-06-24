@@ -19,6 +19,16 @@ export class UserService {
     return this.userRepository.save(newUser);
   }
 
+  async findMe({ userId }: { userId: string }): Promise<User> {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.userClubs', 'userClub')
+      .leftJoinAndSelect('userClub.club', 'club')
+      .leftJoinAndSelect('club.matches', 'match')
+      .where('user.id = :userId', { userId })
+      .getOne();
+  }
+
   async findUser(username: string): Promise<User | undefined> {
     return this.userRepository.findOne({ where: { username } });
   }
