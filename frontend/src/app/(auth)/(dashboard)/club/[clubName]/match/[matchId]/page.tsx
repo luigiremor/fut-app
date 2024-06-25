@@ -1,11 +1,18 @@
 import { JoinMatchDropdown } from '@/components/match/join-match-dropdown';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { getSession } from '@/lib/auth/utils';
 import api from '@/services/api';
 import { Match } from '@/types/Api';
 import { AxiosResponse } from 'axios';
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
+import {
+  CalendarIcon,
+  FilePen,
+  Shuffle,
+  ShuffleIcon,
+  StarOffIcon
+} from 'lucide-react';
 
 const getMatch = async (
   matchId: string
@@ -37,6 +44,8 @@ export default async function MatchPage({
 
   const match = await getMatch(matchId);
 
+  console.log(match.data);
+
   const decodedClubName = decodeURIComponent(clubName);
 
   const isConfirmed = match.data.confirmedUsers.some(
@@ -67,7 +76,7 @@ export default async function MatchPage({
           {!isConfirmed && <JoinMatchDropdown matchId={matchId} />}
         </div>
 
-        <div className="grid gap-4">
+        <div className="grid gap-4 border-b-[1px] py-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {match.data.playerPositions.map(
               (playerPosition: {
@@ -99,6 +108,48 @@ export default async function MatchPage({
               )
             )}
           </div>
+        </div>
+
+        <div className="flex flex-col">
+          <div className="flex justify-between items-center">
+            <h4 className="text-2xl font-semibold">Match</h4>
+            <div className="flex gap-2">
+              <Button className="gap-2" variant="secondary">
+                <FilePen className="size-5" />
+                Edit results
+              </Button>
+              <Button className="gap-2">
+                <ShuffleIcon className="size-5" />
+                Shuffle
+              </Button>
+            </div>
+          </div>
+          <h3 className="text-lg font-medium mb-2">Team A</h3>
+          <ul className="space-y-2">
+            {match.data.teamA.map((player) => (
+              <li key={player.id} className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Avatar className="mr-2">
+                    <AvatarImage src="/placeholder-user.jpg" />
+                    <AvatarFallback>{player.username.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <span>{player.username}</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="flex items-center">
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <StarOffIcon
+                        key={i}
+                        className={`size-4 ${
+                          i < 0 ? 'fill-primary' : 'fill-muted-foreground'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>

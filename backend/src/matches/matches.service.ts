@@ -6,6 +6,7 @@ import { ClubsService } from 'src/clubs/clubs.service';
 import { UserClubService } from 'src/user-club/user-club.service';
 import { ConfirmParticipationDto } from './dto/confirm-participation.dto';
 import { Match } from './entities/match.entity';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class MatchService {
@@ -13,6 +14,7 @@ export class MatchService {
     @InjectRepository(Match)
     private matchRepository: Repository<Match>,
     private clubService: ClubsService,
+    private userService: UserService,
     private userClubService: UserClubService,
   ) {}
 
@@ -82,17 +84,102 @@ export class MatchService {
   async divideTeams(matchId: string): Promise<Match> {
     const match = await this.matchRepository.findOne({
       where: { id: matchId },
-      relations: ['confirmedUsers'],
+      relations: ['confirmedUsers', 'teamA', 'teamB'],
     });
     if (!match) {
       throw new HttpException('Match not found', HttpStatus.NOT_FOUND);
     }
 
-    const confirmedUsers = match.confirmedUsers;
-    const halfSize = Math.ceil(confirmedUsers.length / 2);
+    console.log('match', match);
 
-    match.teamA = confirmedUsers.slice(0, halfSize);
-    match.teamB = confirmedUsers.slice(halfSize);
+    const confirmedUsers = match.confirmedUsers;
+    const playerPositions = match.playerPositions;
+
+    // Função para calcular a média de ratings de um jogador
+    const calculateAverageRating = (ratings) => {
+      if (ratings.length === 0) return 0;
+      const sum = ratings.reduce((acc, rating) => acc + rating.rating, 0);
+      return sum / ratings.length;
+    };
+
+    // Obter média de ratings para cada jogador confirmado
+    const players = await Promise.all(
+      confirmedUsers.map(async (user) => {
+        const positionData = playerPositions.find((p) => p.userId === user.id);
+        const userWithRatings = await this.userService.findOne({
+          userId: user.id,
+        });
+
+        return {
+          ...user,
+          position: positionData ? positionData.position : 'UNKNOWN',
+          rating: calculateAverageRating(userWithRatings.receivedRatings),
+        };
+      }),
+    );
+
+    console.log('players', players);
+
+    // Separar jogadores por posição
+    const positions = ['GK', 'DEF', 'MID', 'FWD'];
+    const positionGroups = positions.reduce((acc, position) => {
+      acc[position] = players.filter((player) => player.position === position);
+      return acc;
+    }, {});
+
+    console.log('positionGroups', positionGroups);
+
+    // Função para distribuir jogadores para balancear os times
+    const distributePlayers = (players) => {
+      const teamA = [];
+      const teamB = [];
+      let sumA = 0;
+      let sumB = 0;
+
+      players.sort((a, b) => b.rating - a.rating); // Ordenar jogadores por nota
+
+      console.log('players', players);
+
+      players.forEach((player) => {
+        if (
+          teamA.length < teamB.length ||
+          (teamA.length === teamB.length && sumA <= sumB)
+        ) {
+          teamA.push(player);
+          sumA += player.rating;
+        } else {
+          teamB.push(player);
+          sumB += player.rating;
+        }
+      });
+
+      return { teamA, teamB };
+    };
+
+    // Distribuir jogadores em cada grupo de posição
+    let teamA = [];
+    let teamB = [];
+    positions.forEach((position) => {
+      const { teamA: positionTeamA, teamB: positionTeamB } = distributePlayers(
+        positionGroups[position],
+      );
+      teamA = [...teamA, ...positionTeamA];
+      teamB = [...teamB, ...positionTeamB];
+    });
+
+    // Garantir que os times tenham a mesma quantidade de jogadores
+    while (teamA.length > teamB.length) {
+      teamB.push(teamA.pop());
+    }
+    while (teamB.length > teamA.length) {
+      teamA.push(teamB.pop());
+    }
+
+    console.log('teamA', teamA);
+    console.log('teamB', teamB);
+
+    match.teamA = teamA.map((player) => player.id);
+    match.teamB = teamB.map((player) => player.id);
 
     return this.matchRepository.save(match);
   }
