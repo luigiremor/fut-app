@@ -145,7 +145,7 @@ export class MatchService {
         club: { id: In(clubIds) },
         date: MoreThan(new Date().toISOString()),
       },
-      relations: ['club'],
+      relations: ['club', 'confirmedUsers'],
     });
 
     return upcomingMatches;

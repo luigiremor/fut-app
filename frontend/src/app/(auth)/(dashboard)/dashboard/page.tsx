@@ -12,30 +12,26 @@ import {
 import { cn } from '@/lib/utils';
 import { getMyClubs } from '@/resolver/club/get-my-clubs';
 import api from '@/services/api';
+import { Match } from '@/types/Api';
 import { paths } from '@/utils/paths';
+import { AxiosResponse } from 'axios';
+import { format } from 'date-fns';
 import Link from 'next/link';
 import { FaArrowRightLong } from 'react-icons/fa6';
 
 export const dynamic = 'force-dynamic';
 
-const getMyInfo = async () => {
-  return await api.get('/users/me');
-};
-
-const getUpcomingMatches = async () => {
+const getUpcomingMatches = async (): Promise<AxiosResponse<Match[]>> => {
   return await api.get('/matches/user/me/upcoming');
 };
 
 export default async function Dashboard() {
   const myClubs = await getMyClubs();
-  const myInfo = await getMyInfo();
   const upcomingMatches = await getUpcomingMatches();
 
-  console.log(myClubs);
-
-  console.log(upcomingMatches.data);
-
-  console.log(myInfo.data);
+  const sortedUpcomingMatches = upcomingMatches.data.sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
 
   return (
     <div className="flex flex-col space-y-4 ">
@@ -45,7 +41,7 @@ export default async function Dashboard() {
             <h1 className="text-3xl font-bold">Upcoming Matches</h1>
           </div>
           <CarouselContent className="py-4">
-            {Array.from({ length: 5 }).map((_, index) => (
+            {sortedUpcomingMatches.map((upcomingMatch, index) => (
               <CarouselItem
                 key={`carousel-${index}`}
                 className="sm:basis-1/2 lg:basis-1/3"
@@ -55,35 +51,46 @@ export default async function Dashboard() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <Avatar>
-                          <AvatarFallback>TA</AvatarFallback>
+                          <AvatarFallback>
+                            {upcomingMatch.club.name.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
                         </Avatar>
                         <div>
-                          <h3 className="text-lg font-bold">Team A</h3>
+                          <h3 className="text-lg font-bold">
+                            {upcomingMatch.club.name}
+                          </h3>
                         </div>
                       </div>
                       <div className="flex items-center space-x-4 bg-primary/20 px-2 rounded-full text-primary">
-                        <p>10/16</p>
+                        <p>{upcomingMatch.confirmedUsers.length}/16</p>
                         <Icons.users className="size-4" />
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="flex justify-between items-center">
-                      <div className="text-secondary-foreground">
+                      <div className="text-muted-foreground">
                         <div className="flex items-center space-x-2">
                           <Icons.calendar className="size-5" />
-                          <p>May 30, 2024</p>
+                          <p>{format(new Date(upcomingMatch.date), 'PP')}</p>
                         </div>
                         <div className="flex items-center space-x-2">
                           <Icons.clock className="size-5" />
-                          <p>7:00 PM</p>
+                          <p>{format(new Date(upcomingMatch.date), 'p')}</p>
                         </div>
                         <div className="flex items-center space-x-2">
                           <Icons.map className="size-5" />
-                          <p>Field 1</p>
+                          <p>{upcomingMatch.location}</p>
                         </div>
                       </div>
-                      <Button>Join</Button>
+                      <Link
+                        href={`/club/${upcomingMatch.club.name}/match/${upcomingMatch.id}`}
+                        className={buttonVariants({
+                          variant: 'default'
+                        })}
+                      >
+                        Join
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>

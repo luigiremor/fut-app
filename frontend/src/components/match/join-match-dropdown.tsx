@@ -11,6 +11,8 @@ import {
   DropdownMenuTrigger
 } from '../ui/dropdown-menu';
 import api from '@/services/api';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 const joinMatch = async ({
   matchId,
@@ -25,6 +27,24 @@ const joinMatch = async ({
 };
 
 export const JoinMatchDropdown = ({ matchId }: { matchId: string }) => {
+  const router = useRouter();
+
+  const handleJoinMatch = async (position: string) => {
+    const joiningMatchPromise = joinMatch({
+      matchId,
+      position
+    });
+
+    toast.promise(joiningMatchPromise, {
+      loading: 'Joining Match...',
+      success: () => {
+        router.refresh();
+        return 'Joined Match';
+      },
+      error: 'Failed to join match'
+    });
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className={buttonVariants({ variant: 'default' })}>
@@ -34,44 +54,16 @@ export const JoinMatchDropdown = ({ matchId }: { matchId: string }) => {
       <DropdownMenuContent>
         <DropdownMenuLabel>Join as</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() =>
-            joinMatch({
-              matchId,
-              position: 'MID'
-            })
-          }
-        >
+        <DropdownMenuItem onClick={() => handleJoinMatch('MID')}>
           Midfielder
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() =>
-            joinMatch({
-              matchId,
-              position: 'FWD'
-            })
-          }
-        >
+        <DropdownMenuItem onClick={() => handleJoinMatch('FWD')}>
           Forward
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() =>
-            joinMatch({
-              matchId,
-              position: 'DEF'
-            })
-          }
-        >
+        <DropdownMenuItem onClick={() => handleJoinMatch('DEF')}>
           Defender
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() =>
-            joinMatch({
-              matchId,
-              position: 'GK'
-            })
-          }
-        >
+        <DropdownMenuItem onClick={() => handleJoinMatch('GK')}>
           Goalkeeper
         </DropdownMenuItem>
       </DropdownMenuContent>
