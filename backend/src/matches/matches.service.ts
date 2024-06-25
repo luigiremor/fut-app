@@ -90,19 +90,17 @@ export class MatchService {
       throw new HttpException('Match not found', HttpStatus.NOT_FOUND);
     }
 
-    console.log('match', match);
-
     const confirmedUsers = match.confirmedUsers;
     const playerPositions = match.playerPositions;
 
-    // Função para calcular a média de ratings de um jogador
+    // Calculate average rating for a player
     const calculateAverageRating = (ratings) => {
       if (ratings.length === 0) return 0;
       const sum = ratings.reduce((acc, rating) => acc + rating.rating, 0);
       return sum / ratings.length;
     };
 
-    // Obter média de ratings para cada jogador confirmado
+    // Get average ratings for each confirmed player
     const players = await Promise.all(
       confirmedUsers.map(async (user) => {
         const positionData = playerPositions.find((p) => p.userId === user.id);
@@ -120,25 +118,21 @@ export class MatchService {
 
     console.log('players', players);
 
-    // Separar jogadores por posição
+    // Segrage players by position
     const positions = ['GK', 'DEF', 'MID', 'FWD'];
     const positionGroups = positions.reduce((acc, position) => {
       acc[position] = players.filter((player) => player.position === position);
       return acc;
     }, {});
 
-    console.log('positionGroups', positionGroups);
-
-    // Função para distribuir jogadores para balancear os times
+    // Distribute players to balance teams
     const distributePlayers = (players) => {
       const teamA = [];
       const teamB = [];
       let sumA = 0;
       let sumB = 0;
 
-      players.sort((a, b) => b.rating - a.rating); // Ordenar jogadores por nota
-
-      console.log('players', players);
+      players.sort((a, b) => b.rating - a.rating); // Order players by rating
 
       players.forEach((player) => {
         if (
@@ -156,7 +150,7 @@ export class MatchService {
       return { teamA, teamB };
     };
 
-    // Distribuir jogadores em cada grupo de posição
+    // Distribute players in each position group
     let teamA = [];
     let teamB = [];
     positions.forEach((position) => {
@@ -167,7 +161,7 @@ export class MatchService {
       teamB = [...teamB, ...positionTeamB];
     });
 
-    // Garantir que os times tenham a mesma quantidade de jogadores
+    // Ensure teams have the same number of players
     while (teamA.length > teamB.length) {
       teamB.push(teamA.pop());
     }
@@ -175,11 +169,8 @@ export class MatchService {
       teamA.push(teamB.pop());
     }
 
-    console.log('teamA', teamA);
-    console.log('teamB', teamB);
-
-    match.teamA = teamA.map((player) => player.id);
-    match.teamB = teamB.map((player) => player.id);
+    match.teamA = teamA;
+    match.teamB = teamB;
 
     return this.matchRepository.save(match);
   }
