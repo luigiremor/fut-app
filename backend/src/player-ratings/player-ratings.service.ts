@@ -22,14 +22,22 @@ export class PlayerRatingsService {
     const match = await this.matchService.findOne(
       createPlayerRatingDto.matchId,
     );
+    console.log(createPlayerRatingDto);
+    console.log(match);
+
     if (!match) {
       throw new HttpException('Match not found', HttpStatus.NOT_FOUND);
     }
+
+    console.log(match.confirmedUsers);
 
     const reviewer = await this.userService.findUserById(reviewerId);
     const reviewee = await this.userService.findUserById(
       createPlayerRatingDto.revieweeId,
     );
+
+    console.log(reviewer);
+    console.log(reviewee);
 
     if (
       !match.confirmedUsers.some((user) => user.id === reviewerId) ||
@@ -43,14 +51,19 @@ export class PlayerRatingsService {
       );
     }
 
+    console.log(match.ratings);
+
     const existingRating = match.ratings.find(
       (rating) =>
         rating.reviewer.id === reviewerId &&
         rating.reviewee.id === createPlayerRatingDto.revieweeId,
     );
     if (existingRating) {
+      console.log(existingRating);
       throw new HttpException('Rating already exists', HttpStatus.BAD_REQUEST);
     }
+
+    console.log(existingRating);
 
     const playerRating = this.playerRatingsRepository.create({
       match,
@@ -58,6 +71,8 @@ export class PlayerRatingsService {
       reviewee,
       rating: createPlayerRatingDto.rating,
     });
+
+    console.log(playerRating);
 
     return this.playerRatingsRepository.save(playerRating);
   }

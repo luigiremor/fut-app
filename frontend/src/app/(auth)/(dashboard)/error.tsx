@@ -3,6 +3,7 @@
 import { Button, buttonVariants } from '@/components/ui/button';
 import { getSession } from '@/lib/auth/utils';
 import { cn } from '@/lib/utils';
+import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -15,6 +16,10 @@ export default function Error({
   reset: () => void;
 }) {
   const router = useRouter();
+  if (error.message.includes('308')) {
+    console.log(error.message);
+    signOut();
+  }
 
   useEffect(() => {
     const checkSession = async () => {

@@ -1,6 +1,6 @@
 import { Icons } from '@/components/common/icons';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import {
   Carousel,
@@ -23,6 +23,20 @@ export const dynamic = 'force-dynamic';
 
 const getUpcomingMatches = async (): Promise<AxiosResponse<Match[]>> => {
   return await api.get('/matches/user/me/upcoming');
+};
+
+const TOTAL_CAPACITY = 16;
+
+const matchCapacityStatusToColor = (confirmedUsers: number) => {
+  if (confirmedUsers >= Math.floor(TOTAL_CAPACITY * 0.75)) {
+    return 'bg-destructive/20 text-destructive';
+  }
+
+  if (confirmedUsers >= TOTAL_CAPACITY / 2) {
+    return 'bg-yellow-500/20 text-yellow-500';
+  }
+
+  return 'bg-primary/20 text-primary';
 };
 
 export default async function Dashboard() {
@@ -61,7 +75,14 @@ export default async function Dashboard() {
                           </h3>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-4 bg-primary/20 px-2 rounded-full text-primary">
+                      <div
+                        className={cn(
+                          'flex items-center space-x-4 px-2 rounded-full',
+                          matchCapacityStatusToColor(
+                            upcomingMatch.confirmedUsers.length
+                          )
+                        )}
+                      >
                         <p>{upcomingMatch.confirmedUsers.length}/16</p>
                         <Icons.users className="size-4" />
                       </div>

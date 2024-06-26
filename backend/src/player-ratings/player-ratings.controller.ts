@@ -14,6 +14,9 @@ export class PlayerRatingsController {
     @Req() request: any,
   ) {
     const reviewerId = request.user.sub;
+    console.log(reviewerId);
+    console.log(createPlayerRatingDto);
+
     return this.playerRatingsService.create(createPlayerRatingDto, reviewerId);
   }
 }

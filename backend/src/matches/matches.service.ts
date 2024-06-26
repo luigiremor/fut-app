@@ -210,7 +210,20 @@ export class MatchService {
   async findOne(id: string): Promise<Match> {
     return this.matchRepository.findOne({
       where: { id },
-      relations: ['confirmedUsers', 'teamA', 'teamB', 'ratings'],
+      relations: [
+        'confirmedUsers',
+        'teamA',
+        'teamB',
+        'teamA.receivedRatings',
+        'teamA.receivedRatings.reviewer',
+        'teamA.receivedRatings.match',
+        'teamB.receivedRatings',
+        'teamB.receivedRatings.reviewer',
+        'teamB.receivedRatings.match',
+        'ratings',
+        'ratings.reviewer',
+        'ratings.reviewee',
+      ],
     });
   }
 

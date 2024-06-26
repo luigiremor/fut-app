@@ -1,18 +1,15 @@
+import { EditResultButton } from '@/components/match/edit-result-button';
 import { JoinMatchDropdown } from '@/components/match/join-match-dropdown';
+import { RatingUser } from '@/components/match/rating-user';
+import { ShuffleTeamsButton } from '@/components/match/shuffle-teams-button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { getSession } from '@/lib/auth/utils';
 import api from '@/services/api';
 import { Match } from '@/types/Api';
 import { AxiosResponse } from 'axios';
 import { format } from 'date-fns';
-import {
-  CalendarIcon,
-  FilePen,
-  Shuffle,
-  ShuffleIcon,
-  StarOffIcon
-} from 'lucide-react';
+import { CalendarIcon } from 'lucide-react';
 
 const getMatch = async (
   matchId: string
@@ -34,9 +31,11 @@ const positionAcronymsToFull = {
 };
 
 export default async function MatchPage({
-  params
+  params,
+  searchParams
 }: {
   params: { clubName: string; matchId: string };
+  searchParams: { edit: boolean };
 }) {
   const { clubName, matchId } = params;
 
@@ -51,6 +50,8 @@ export default async function MatchPage({
   const isConfirmed = match.data.confirmedUsers.some(
     (user) => user.id === session?.user?.id
   );
+
+  console.log(searchParams.edit);
 
   return (
     <div className="flex flex-col gap-4">
@@ -114,42 +115,132 @@ export default async function MatchPage({
           <div className="flex justify-between items-center">
             <h4 className="text-2xl font-semibold">Match</h4>
             <div className="flex gap-2">
-              <Button className="gap-2" variant="secondary">
-                <FilePen className="size-5" />
-                Edit results
-              </Button>
-              <Button className="gap-2">
-                <ShuffleIcon className="size-5" />
-                Shuffle
-              </Button>
+              <EditResultButton />
+              <ShuffleTeamsButton matchId={matchId} />
             </div>
           </div>
-          <h3 className="text-lg font-medium mb-2">Team A</h3>
-          <ul className="space-y-2">
-            {match.data.teamA.map((player) => (
-              <li key={player.id} className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Avatar className="mr-2">
-                    <AvatarImage src="/placeholder-user.jpg" />
-                    <AvatarFallback>{player.username.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <span>{player.username}</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="flex items-center">
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <StarOffIcon
-                        key={i}
-                        className={`size-4 ${
-                          i < 0 ? 'fill-primary' : 'fill-muted-foreground'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <section className="grid grid-cols-2 gap-4 py-4">
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-medium mb-2">Team A</h3>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {match.data.teamA.map((player) => {
+                    console.log(player.receivedRatings);
+
+                    const hasRated =
+                      player.receivedRatings?.filter(
+                        (receivedRating) =>
+                          receivedRating.reviewer.id === session?.user?.id &&
+                          receivedRating.match.id === matchId
+                      ).length > 0;
+
+                    const currentRate = player.receivedRatings?.filter(
+                      (receivedRating) =>
+                        receivedRating.reviewer.id === session?.user?.id &&
+                        receivedRating.match.id === matchId
+                    )[0]?.rating;
+
+                    console.log(currentRate);
+
+                    return (
+                      <li
+                        key={player.id}
+                        className="flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Avatar className="border">
+                            <AvatarImage src="/placeholder-user.jpg" />
+                            <AvatarFallback>
+                              {player.username.slice(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col">
+                            <span className="font-medium">
+                              {player.username}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {player.username}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="flex items-center">
+                            <RatingUser
+                              currentRate={currentRate ?? 0}
+                              hasRated={hasRated}
+                              matchId={matchId}
+                              isEditing={searchParams.edit}
+                              revieweeId={player.id}
+                            />
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-medium mb-2">Team A</h3>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {match.data.teamB.map((player) => {
+                    const hasRated =
+                      player.receivedRatings?.filter(
+                        (receivedRating) =>
+                          receivedRating.reviewer.id === session?.user?.id &&
+                          receivedRating.match.id === matchId
+                      ).length > 0;
+
+                    const currentRate = player.receivedRatings?.filter(
+                      (receivedRating) =>
+                        receivedRating.reviewer.id === session?.user?.id &&
+                        receivedRating.match.id === matchId
+                    )[0];
+
+                    return (
+                      <li
+                        key={player.id}
+                        className="flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Avatar className="border">
+                            <AvatarImage src="/placeholder-user.jpg" />
+                            <AvatarFallback>
+                              {player.username.slice(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col">
+                            <span className="font-medium">
+                              {player.username}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {player.username}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="flex items-center">
+                            <RatingUser
+                              currentRate={currentRate?.rating || 0}
+                              hasRated={hasRated}
+                              matchId={matchId}
+                              isEditing={searchParams.edit}
+                              revieweeId={player.id}
+                            />
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </CardContent>
+            </Card>
+          </section>
         </div>
       </div>
     </div>

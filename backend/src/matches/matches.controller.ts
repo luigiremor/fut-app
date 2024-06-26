@@ -60,8 +60,6 @@ export class MatchController {
   async findOne(@Param('id') id: string) {
     const match = await this.matchService.findOne(id);
 
-    console.log('match', match);
-
     return match;
   }
 
