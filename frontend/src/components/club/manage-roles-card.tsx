@@ -55,7 +55,7 @@ export const ManageRolesCard = ({
   };
 
   return (
-    <Card className="col-span-1">
+    <Card className="col-span-1 md:col-span-2 lg:col-span-1">
       <CardHeader>
         <CardTitle>Manage Roles</CardTitle>
       </CardHeader>

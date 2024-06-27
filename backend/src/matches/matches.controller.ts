@@ -68,4 +68,9 @@ export class MatchController {
     const userId = request.user.sub;
     return this.matchService.findUpcomingMatchesForUser(userId);
   }
+
+  @Get('club/:clubName/upcoming')
+  async findUpcomingMatchesForClub(@Param('clubName') clubName: string) {
+    return this.matchService.findUpcomingMatchesForClub(clubName);
+  }
 }

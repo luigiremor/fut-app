@@ -241,4 +241,14 @@ export class MatchService {
 
     return upcomingMatches;
   }
+
+  async findUpcomingMatchesForClub(clubName: string): Promise<Match[]> {
+    return this.matchRepository.find({
+      where: {
+        club: { name: clubName },
+        date: MoreThan(new Date().toISOString()),
+      },
+      relations: ['club', 'confirmedUsers'],
+    });
+  }
 }

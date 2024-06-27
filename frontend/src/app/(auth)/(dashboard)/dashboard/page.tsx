@@ -27,7 +27,7 @@ const getUpcomingMatches = async (): Promise<AxiosResponse<Match[]>> => {
 
 const TOTAL_CAPACITY = 16;
 
-const matchCapacityStatusToColor = (confirmedUsers: number) => {
+export const matchCapacityStatusToColor = (confirmedUsers: number) => {
   if (confirmedUsers >= Math.floor(TOTAL_CAPACITY * 0.75)) {
     return 'bg-destructive/20 text-destructive';
   }

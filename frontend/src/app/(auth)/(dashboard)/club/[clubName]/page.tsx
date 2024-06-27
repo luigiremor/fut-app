@@ -1,9 +1,25 @@
 import { ManageRolesCard } from '@/components/club/manage-roles-card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import { getHasAdminPermission } from '@/resolver/club/get-has-admin-permission';
+import api from '@/services/api';
+import { Match } from '@/types/Api';
+import { AxiosResponse } from 'axios';
+import { format } from 'date-fns';
 import Link from 'next/link';
+import { matchCapacityStatusToColor } from '../../dashboard/page';
+import { Icons } from '@/components/common/icons';
+import { Clock, LocateFixed } from 'lucide-react';
+
+const getUpcomingMatchesForClub = async (
+  clubName: string
+): Promise<AxiosResponse<Match[]>> => {
+  const response = api.get(`matches/club/${clubName}/upcoming`);
+
+  return response;
+};
 
 export default async function ClubPage({
   params
@@ -15,6 +31,13 @@ export default async function ClubPage({
   const decodedClubName = decodeURIComponent(clubName);
 
   const hasUserAdminPermission = await getHasAdminPermission(decodedClubName);
+
+  const { data: upcomingMatches } =
+    await getUpcomingMatchesForClub(decodedClubName);
+
+  const sortedUpcomingMatches = upcomingMatches
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .slice(0, 2);
 
   return (
     <section className="mb-8 flex flex-col gap-2">
@@ -38,22 +61,45 @@ export default async function ClubPage({
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-gray-100 p-4 rounded-lg">
-                <h3 className="text-lg font-bold mb-2">Game 1</h3>
-                <p className="text-gray-500 mb-2">June 1, 2023 - 7:00 PM</p>
-                <p className="text-gray-500 mb-2">Home Team vs Away Team</p>
-                <Button variant="outline" className="mt-2">
-                  View Details
-                </Button>
-              </div>
-              <div className="bg-gray-100 p-4 rounded-lg">
-                <h3 className="text-lg font-bold mb-2">Game 2</h3>
-                <p className="text-gray-500 mb-2">June 8, 2023 - 3:00 PM</p>
-                <p className="text-gray-500 mb-2">Home Team vs Away Team</p>
-                <Button variant="outline" className="mt-2">
-                  View Details
-                </Button>
-              </div>
+              {sortedUpcomingMatches.map((match, index) => (
+                <div
+                  className="bg-gray-100 p-4 rounded-lg flex flex-col gap-4"
+                  key={match.id}
+                >
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-bold">Game {index + 1}</h3>
+                    <div
+                      className={cn(
+                        'flex items-center space-x-4 px-2 rounded-full',
+                        matchCapacityStatusToColor(match.confirmedUsers.length)
+                      )}
+                    >
+                      <p>{match.confirmedUsers.length}/16</p>
+                      <Icons.users className="size-5" />
+                    </div>
+                  </div>
+                  <p className="text-gray-500 flex items-center">
+                    <Clock className="size-5 mr-2" />
+                    {format(match.date, 'PPpp')}
+                  </p>
+                  <p className="text-gray-500 flex items-center">
+                    <LocateFixed className="size-5 mr-2" />
+                    {match.location}
+                  </p>
+
+                  <Link
+                    href={`/club/${decodedClubName}/match/${match.id}`}
+                    className={cn(
+                      'mt-2',
+                      buttonVariants({
+                        variant: 'outline'
+                      })
+                    )}
+                  >
+                    View Details
+                  </Link>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
