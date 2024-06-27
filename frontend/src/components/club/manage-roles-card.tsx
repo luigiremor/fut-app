@@ -25,6 +25,7 @@ import { createClubInvite } from '@/resolver/club/create-club-invite';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { useQRCode } from 'next-qrcode';
 
 export const ManageRolesCard = ({
   hasAdminPermission
@@ -34,6 +35,7 @@ export const ManageRolesCard = ({
   const pathname = usePathname();
   const params = useParams<{ clubName: string }>();
   const [inviteLink, setInviteLink] = useState<{ inviteLink: string }>();
+  const { Canvas } = useQRCode();
   const { clubName } = params;
 
   const decodedClubName = decodeURIComponent(clubName);
@@ -132,6 +134,15 @@ export const ManageRolesCard = ({
                           Your invite link is ready to share!
                         </DialogDescription>
                       </DialogHeader>
+                      <div className="flex justify-center">
+                        <Canvas
+                          text={inviteLink.inviteLink}
+                          options={{
+                            errorCorrectionLevel: 'M',
+                            width: 300
+                          }}
+                        />
+                      </div>
                       <div className="relative w-full">
                         <Input
                           className="w-full p-2 bg-gray-100 rounded-lg pr-10"
