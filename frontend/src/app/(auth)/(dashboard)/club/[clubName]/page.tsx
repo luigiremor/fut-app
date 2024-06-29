@@ -12,6 +12,13 @@ import Link from 'next/link';
 import { matchCapacityStatusToColor } from '../../dashboard/page';
 import { Icons } from '@/components/common/icons';
 import { Clock, LocateFixed } from 'lucide-react';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNonRelativeNext,
+  CarouselNonRelativePrevious
+} from '@/components/ui/carousel';
 
 const getUpcomingMatchesForClub = async (
   clubName: string
@@ -35,9 +42,17 @@ export default async function ClubPage({
   const { data: upcomingMatches } =
     await getUpcomingMatchesForClub(decodedClubName);
 
-  const sortedUpcomingMatches = upcomingMatches
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .slice(0, 2);
+  const sortedUpcomingMatches = upcomingMatches.sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
+  const replicate100SortedUpcomingMatches = [
+    ...sortedUpcomingMatches,
+    ...sortedUpcomingMatches,
+    ...sortedUpcomingMatches,
+    ...sortedUpcomingMatches,
+    ...sortedUpcomingMatches
+  ];
 
   return (
     <section className="mb-8 flex flex-col gap-2">
@@ -56,52 +71,60 @@ export default async function ClubPage({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <ManageRolesCard hasAdminPermission={hasUserAdminPermission} />
         <Card className="col-span-1 md:col-span-2 lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Upcoming Games</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {sortedUpcomingMatches.map((match, index) => (
-                <div
-                  className="bg-gray-100 p-4 rounded-lg flex flex-col gap-4"
-                  key={match.id}
-                >
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-bold">Game {index + 1}</h3>
-                    <div
+          <Carousel>
+            <CardHeader className="flex flex-row justify-between items-center">
+              <CardTitle>Upcoming Games</CardTitle>
+              <div className="flex gap-2">
+                <CarouselNonRelativePrevious />
+                <CarouselNonRelativeNext />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <CarouselContent className="px-4 space-x-4">
+                {replicate100SortedUpcomingMatches.map((match, index) => (
+                  <CarouselItem
+                    className="bg-gray-100 p-4 rounded-lg flex flex-col gap-4 basis-1/2"
+                    key={match.id}
+                  >
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-bold">Game {index + 1}</h3>
+                      <div
+                        className={cn(
+                          'flex items-center space-x-4 px-2 rounded-full',
+                          matchCapacityStatusToColor(
+                            match.confirmedUsers.length
+                          )
+                        )}
+                      >
+                        <p>{match.confirmedUsers.length}/16</p>
+                        <Icons.users className="size-5" />
+                      </div>
+                    </div>
+                    <p className="text-gray-500 flex items-center">
+                      <Clock className="size-5 mr-2" />
+                      {format(match.date, 'PPpp')}
+                    </p>
+                    <p className="text-gray-500 flex items-center">
+                      <LocateFixed className="size-5 mr-2" />
+                      {match.location}
+                    </p>
+
+                    <Link
+                      href={`/club/${decodedClubName}/match/${match.id}`}
                       className={cn(
-                        'flex items-center space-x-4 px-2 rounded-full',
-                        matchCapacityStatusToColor(match.confirmedUsers.length)
+                        'mt-2',
+                        buttonVariants({
+                          variant: 'outline'
+                        })
                       )}
                     >
-                      <p>{match.confirmedUsers.length}/16</p>
-                      <Icons.users className="size-5" />
-                    </div>
-                  </div>
-                  <p className="text-gray-500 flex items-center">
-                    <Clock className="size-5 mr-2" />
-                    {format(match.date, 'PPpp')}
-                  </p>
-                  <p className="text-gray-500 flex items-center">
-                    <LocateFixed className="size-5 mr-2" />
-                    {match.location}
-                  </p>
-
-                  <Link
-                    href={`/club/${decodedClubName}/match/${match.id}`}
-                    className={cn(
-                      'mt-2',
-                      buttonVariants({
-                        variant: 'outline'
-                      })
-                    )}
-                  >
-                    View Details
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </CardContent>
+                      View Details
+                    </Link>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </CardContent>
+          </Carousel>
         </Card>
         <Card className="col-span-1 md:col-span-2 lg:col-span-3">
           <CardHeader>
