@@ -129,4 +129,10 @@ export class ClubsController {
 
     return this.clubsService.joinClub(inviteClubDto, userId);
   }
+
+  @UseGuards(AuthGuard)
+  @Get(':name/users/most-active')
+  async findMostActiveUsers(@Param('name') name: string) {
+    return this.clubsService.getMostActiveUsers(name);
+  }
 }

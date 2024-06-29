@@ -121,4 +121,34 @@ export class ClubsService {
 
     return this.userClubService.create(createUserClubDto);
   }
+
+  async getMostActiveUsers(clubName: string) {
+    const club = await this.clubRepository.findOne({
+      where: { name: clubName },
+      relations: ['matches', 'matches.teamA', 'matches.teamB'],
+    });
+
+    console.log('club', club);
+
+    const players = club.matches
+      .map((match) => [...match.teamA, ...match.teamB])
+      .flat();
+
+    console.log('players', players);
+
+    const playerCount = players.reduce((acc, player) => {
+      acc[player.id] = (acc[player.id] || 0) + 1;
+      return acc;
+    }, {});
+
+    console.log('playerCount', playerCount);
+
+    const playerWithMostPlayedMatches = Object.keys(playerCount).reduce(
+      (a, b) => (playerCount[a] > playerCount[b] ? a : b),
+    );
+
+    console.log('playerWithMostPlayedMatches', playerWithMostPlayedMatches);
+
+    return playerWithMostPlayedMatches;
+  }
 }
