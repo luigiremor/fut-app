@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, MoreThan, Repository } from 'typeorm';
+import { In, LessThan, MoreThan, Repository } from 'typeorm';
 import { ClubsService } from 'src/clubs/clubs.service';
 import { UserClubService } from 'src/user-club/user-club.service';
 import { ConfirmParticipationDto } from './dto/confirm-participation.dto';
@@ -247,6 +247,16 @@ export class MatchService {
       where: {
         club: { name: clubName },
         date: MoreThan(new Date().toISOString()),
+      },
+      relations: ['club', 'confirmedUsers'],
+    });
+  }
+
+  async findPastMatchesForUser(userId: string): Promise<Match[]> {
+    return this.matchRepository.find({
+      where: {
+        confirmedUsers: { id: userId },
+        date: LessThan(new Date().toISOString()),
       },
       relations: ['club', 'confirmedUsers'],
     });

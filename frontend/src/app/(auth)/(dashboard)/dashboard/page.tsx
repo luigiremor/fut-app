@@ -25,6 +25,10 @@ const getUpcomingMatches = async (): Promise<AxiosResponse<Match[]>> => {
   return await api.get('/matches/user/me/upcoming');
 };
 
+const getPastMatches = async (): Promise<AxiosResponse<Match[]>> => {
+  return await api.get('/matches/user/me/past');
+};
+
 const TOTAL_CAPACITY = 16;
 
 export const matchCapacityStatusToColor = (confirmedUsers: number) => {
@@ -42,6 +46,9 @@ export const matchCapacityStatusToColor = (confirmedUsers: number) => {
 export default async function Dashboard() {
   const myClubs = await getMyClubs();
   const upcomingMatches = await getUpcomingMatches();
+  const { data: pastMatches } = await getPastMatches();
+
+  console.log('pastMatches', pastMatches);
 
   const sortedUpcomingMatches = upcomingMatches.data.sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
@@ -176,7 +183,81 @@ export default async function Dashboard() {
           })}
         </div>
       </section>
-      <h2 className="text-3xl font-semibold">My matches</h2>
+      <section className="">
+        <Carousel>
+          <div className="flex justify-between">
+            <h1 className="text-3xl font-bold">My matches</h1>
+          </div>
+          <CarouselContent className="py-4">
+            {pastMatches.map((upcomingMatch, index) => (
+              <CarouselItem
+                key={`carousel-${index}`}
+                className="sm:basis-1/2 lg:basis-1/3"
+              >
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <Avatar>
+                          <AvatarFallback>
+                            {upcomingMatch.club.name.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="text-lg font-bold">
+                            {upcomingMatch.club.name}
+                          </h3>
+                        </div>
+                      </div>
+                      <div
+                        className={cn(
+                          'flex items-center space-x-4 px-2 rounded-full',
+                          matchCapacityStatusToColor(
+                            upcomingMatch.playerPositions.length
+                          )
+                        )}
+                      >
+                        <p>{upcomingMatch.playerPositions.length}/16</p>
+                        <Icons.users className="size-4" />
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-between items-center">
+                      <div className="text-muted-foreground">
+                        <div className="flex items-center space-x-2">
+                          <Icons.calendar className="size-5" />
+                          <p>{format(new Date(upcomingMatch.date), 'PP')}</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Icons.clock className="size-5" />
+                          <p>{format(new Date(upcomingMatch.date), 'p')}</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Icons.map className="size-5" />
+                          <p>{upcomingMatch.location}</p>
+                        </div>
+                      </div>
+                      <Link
+                        href={`/club/${upcomingMatch.club.name}/match/${upcomingMatch.id}`}
+                        className={buttonVariants({
+                          variant: 'default'
+                        })}
+                      >
+                        See details
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <div className="flex gap-2">
+            <CarouselNonRelativePrevious />
+            <CarouselNonRelativeNext />
+          </div>
+        </Carousel>
+      </section>
     </div>
   );
 }
