@@ -13,7 +13,7 @@ export class User {
   username: string;
 
   @Column()
-  @Exclude()
+  @Exclude({ toPlainOnly: true })
   password: string;
 
   @OneToMany(() => UserClub, (userClub) => userClub.user)

@@ -10,11 +10,13 @@ import { UserClub, UserRole } from 'src/user-club/entities/user-club.entity';
 import { InviteClubDto } from './dto/invite-club.dto';
 import { InviteToken } from './entities/invite-token.entity';
 import * as crypto from 'crypto';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ClubsService {
   constructor(
     private userClubService: UserClubService,
+    private userService: UserService,
     @InjectRepository(Club)
     private clubRepository: Repository<Club>,
     @InjectRepository(InviteToken)
@@ -128,27 +130,84 @@ export class ClubsService {
       relations: ['matches', 'matches.teamA', 'matches.teamB'],
     });
 
-    console.log('club', club);
+    const players = club.matches
+      .map((match) => [...match.teamA, ...match.teamB])
+      .flat();
+
+    const playerCount: Record<string, number> = players.reduce(
+      (acc, player) => {
+        acc[player.id] = (acc[player.id] || 0) + 1;
+        return acc;
+      },
+      {},
+    );
+
+    const sortedPlayers = Object.entries(playerCount).sort(
+      ([, a], [, b]) => b - a,
+    );
+
+    const topPlayers = sortedPlayers.slice(0, 3);
+
+    const topPlayersWithUser = await Promise.all(
+      topPlayers.map(async ([userId, count]) => {
+        const user = await this.userService.findOne({ userId });
+        return { user, count };
+      }),
+    );
+
+    return topPlayersWithUser;
+  }
+
+  async getMostRankedUsers(clubName: string) {
+    const club = await this.clubRepository.findOne({
+      where: { name: clubName },
+      relations: ['matches', 'matches.teamA', 'matches.teamB'],
+    });
 
     const players = club.matches
       .map((match) => [...match.teamA, ...match.teamB])
       .flat();
 
-    console.log('players', players);
+    const playerRatings: Record<
+      string,
+      { totalRating: number; ratingCount: number }
+    > = {};
 
-    const playerCount = players.reduce((acc, player) => {
-      acc[player.id] = (acc[player.id] || 0) + 1;
-      return acc;
-    }, {});
+    for (const player of players) {
+      const userWithRatings = await this.userService.findOne({
+        userId: player.id,
+      });
 
-    console.log('playerCount', playerCount);
+      if (!userWithRatings) continue;
 
-    const playerWithMostPlayedMatches = Object.keys(playerCount).reduce(
-      (a, b) => (playerCount[a] > playerCount[b] ? a : b),
+      for (const rating of userWithRatings.receivedRatings) {
+        if (!playerRatings[player.id]) {
+          playerRatings[player.id] = { totalRating: 0, ratingCount: 0 };
+        }
+
+        playerRatings[player.id].totalRating += rating.rating;
+        playerRatings[player.id].ratingCount += 1;
+      }
+    }
+
+    const playerAverages = Object.entries(playerRatings).map(
+      ([userId, { totalRating, ratingCount }]) => {
+        return { userId, averageRating: totalRating / ratingCount };
+      },
     );
 
-    console.log('playerWithMostPlayedMatches', playerWithMostPlayedMatches);
+    const sortedPlayers = playerAverages.sort(
+      (a, b) => b.averageRating - a.averageRating,
+    );
+    const topPlayers = sortedPlayers.slice(0, 3);
 
-    return playerWithMostPlayedMatches;
+    const topPlayersWithUser = await Promise.all(
+      topPlayers.map(async ({ userId, averageRating }) => {
+        const user = await this.userService.findOne({ userId });
+        return { user, averageRating };
+      }),
+    );
+
+    return topPlayersWithUser;
   }
 }

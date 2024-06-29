@@ -135,4 +135,10 @@ export class ClubsController {
   async findMostActiveUsers(@Param('name') name: string) {
     return this.clubsService.getMostActiveUsers(name);
   }
+
+  @UseGuards(AuthGuard)
+  @Get(':name/users/most-ranked')
+  async findRankings(@Param('name') name: string) {
+    return this.clubsService.getMostRankedUsers(name);
+  }
 }
