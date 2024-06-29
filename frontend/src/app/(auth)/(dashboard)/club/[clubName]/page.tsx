@@ -46,14 +46,6 @@ export default async function ClubPage({
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
-  const replicate100SortedUpcomingMatches = [
-    ...sortedUpcomingMatches,
-    ...sortedUpcomingMatches,
-    ...sortedUpcomingMatches,
-    ...sortedUpcomingMatches,
-    ...sortedUpcomingMatches
-  ];
-
   return (
     <section className="mb-8 flex flex-col gap-2">
       <div className="flex justify-between">
@@ -81,7 +73,7 @@ export default async function ClubPage({
             </CardHeader>
             <CardContent>
               <CarouselContent className="px-4 space-x-4">
-                {replicate100SortedUpcomingMatches.map((match, index) => (
+                {sortedUpcomingMatches.map((match, index) => (
                   <CarouselItem
                     className="bg-gray-100 p-4 rounded-lg flex flex-col gap-4 basis-1/2"
                     key={match.id}
