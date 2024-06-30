@@ -214,7 +214,7 @@ export class ClubsService {
   async getMostScorers(clubName: string) {
     const club = await this.clubRepository.findOne({
       where: { name: clubName },
-      relations: ['matches', 'matches.goals'],
+      relations: ['matches'],
     });
 
     if (!club) {
@@ -235,6 +235,7 @@ export class ClubsService {
     const sortedPlayers = Object.entries(playerGoals).sort(
       ([, goalsA], [, goalsB]) => goalsB - goalsA,
     );
+
     const topPlayers = sortedPlayers.slice(0, 3);
 
     const topPlayersWithUser = await Promise.all(

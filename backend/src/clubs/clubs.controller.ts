@@ -141,4 +141,10 @@ export class ClubsController {
   async findRankings(@Param('name') name: string) {
     return this.clubsService.getMostRankedUsers(name);
   }
+
+  @UseGuards(AuthGuard)
+  @Get(':name/users/most-goals')
+  async findMostGoals(@Param('name') name: string) {
+    return this.clubsService.getMostScorers(name);
+  }
 }

@@ -44,6 +44,14 @@ const getRanking = async (
   return response;
 };
 
+const getMostScorers = async (
+  clubName: string
+): Promise<AxiosResponse<{ user: User; goals: number }[]>> => {
+  const response = api.get(`/clubs/${clubName}/users/most-goals`);
+
+  return response;
+};
+
 export default async function ClubPage({
   params
 }: {
@@ -60,6 +68,7 @@ export default async function ClubPage({
   const { data: mostActiveMembers } =
     await getMostActiveMembers(decodedClubName);
   const { data: rankingMembers } = await getRanking(decodedClubName);
+  const { data: mostScorers } = await getMostScorers(decodedClubName);
 
   const sortedUpcomingMatches = upcomingMatches.sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
@@ -145,26 +154,19 @@ export default async function ClubPage({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="bg-gray-100 p-4 rounded-lg">
                 <h3 className="text-lg font-bold mb-2">Top Scorers</h3>
-                <div className="flex items-center space-x-2">
-                  <Avatar>
-                    <img src="/placeholder.svg" alt="Player 1" />
-                    <AvatarFallback>P1</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-gray-500">Player 1</p>
-                    <p className="font-bold">25 Goals</p>
+                {mostScorers.slice(0, 2).map((member, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <Avatar className="border">
+                      <AvatarFallback>
+                        {member.user.username[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-gray-500">{member.user.username}</p>
+                      <p className="font-bold">{member.goals} Goals</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center space-x-2 mt-2">
-                  <Avatar>
-                    <img src="/placeholder.svg" alt="Player 2" />
-                    <AvatarFallback>P2</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-gray-500">Player 2</p>
-                    <p className="font-bold">20 Goals</p>
-                  </div>
-                </div>
+                ))}
               </div>
 
               <div className="bg-gray-100 p-4 rounded-lg">
