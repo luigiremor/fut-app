@@ -48,8 +48,6 @@ export default async function Dashboard() {
   const upcomingMatches = await getUpcomingMatches();
   const { data: pastMatches } = await getPastMatches();
 
-  console.log('pastMatches', pastMatches);
-
   const sortedUpcomingMatches = upcomingMatches.data.sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
@@ -61,7 +59,11 @@ export default async function Dashboard() {
           <div className="flex justify-between">
             <h1 className="text-3xl font-bold">Upcoming Matches</h1>
           </div>
-          <CarouselContent className="py-4">
+          <CarouselContent
+            className={cn('py-4', {
+              'flex justify-center': sortedUpcomingMatches.length === 0
+            })}
+          >
             {sortedUpcomingMatches.map((upcomingMatch, index) => (
               <CarouselItem
                 key={`carousel-${index}`}
@@ -124,8 +126,19 @@ export default async function Dashboard() {
                 </Card>
               </CarouselItem>
             ))}
+            {sortedUpcomingMatches.length === 0 && (
+              <div className="flex justify-center items-center h-48">
+                <p className="text-lg text-muted-foreground">
+                  No upcoming matches
+                </p>
+              </div>
+            )}
           </CarouselContent>
-          <div className="flex gap-2">
+          <div
+            className={cn('flex gap-2', {
+              hidden: sortedUpcomingMatches.length === 0
+            })}
+          >
             <CarouselNonRelativePrevious />
             <CarouselNonRelativeNext />
           </div>
@@ -188,7 +201,11 @@ export default async function Dashboard() {
           <div className="flex justify-between">
             <h1 className="text-3xl font-bold">My matches</h1>
           </div>
-          <CarouselContent className="py-4">
+          <CarouselContent
+            className={cn('py-4', {
+              'flex justify-center': pastMatches.length === 0
+            })}
+          >
             {pastMatches.map((upcomingMatch, index) => (
               <CarouselItem
                 key={`carousel-${index}`}
@@ -251,8 +268,18 @@ export default async function Dashboard() {
                 </Card>
               </CarouselItem>
             ))}
+            {pastMatches.length === 0 && (
+              <div className="flex justify-center items-center h-48">
+                <p className="text-lg text-muted-foreground">No past matches</p>
+              </div>
+            )}
           </CarouselContent>
-          <div className="flex gap-2">
+
+          <div
+            className={cn('flex gap-2', {
+              hidden: pastMatches.length === 0
+            })}
+          >
             <CarouselNonRelativePrevious />
             <CarouselNonRelativeNext />
           </div>

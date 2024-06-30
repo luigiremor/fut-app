@@ -25,7 +25,7 @@ export const EditResultButton = () => {
   return (
     <Button className="gap-2" variant="secondary" onClick={handleToggleEdit}>
       <FilePen className="size-5" />
-      Edit results
+      Rate Users
     </Button>
   );
 };

@@ -97,9 +97,9 @@ export const AddGoalButton = ({
           className="gap-2"
           size="sm"
           variant="secondary"
-          onClick={handleAddGoal}
+          onClick={handleDeleteGoal}
         >
-          <Plus className="size-5" />
+          <Minus className="size-5" />
         </Button>
       )}
 
@@ -107,14 +107,15 @@ export const AddGoalButton = ({
         <span className="text-lg font-medium w-5">{scoredGoals}</span>
         <PiSoccerBallFill className="size-6 text-muted-foreground" />
       </p>
+
       {hasUserAdminPermission && (
         <Button
           className="gap-2"
           size="sm"
           variant="secondary"
-          onClick={handleDeleteGoal}
+          onClick={handleAddGoal}
         >
-          <Minus className="size-5" />
+          <Plus className="size-5" />
         </Button>
       )}
     </div>
