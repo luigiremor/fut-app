@@ -145,56 +145,75 @@ export default async function Dashboard() {
         </Carousel>
       </section>
       <section>
-        <div className="flex justify-between">
-          <h2 className="text-3xl font-semibold">My clubs</h2>
-          <Link
-            href={paths.auth.club.create}
-            className={cn(
-              buttonVariants({
-                variant: 'outline'
-              }),
-              'gap-2'
-            )}
+        <Carousel>
+          <div className="flex justify-between">
+            <h2 className="text-3xl font-semibold">My clubs</h2>
+            <Link
+              href={paths.auth.club.create}
+              className={cn(
+                buttonVariants({
+                  variant: 'outline'
+                }),
+                'gap-2'
+              )}
+            >
+              <Icons.plus className="size-5" />
+              Create club
+            </Link>
+          </div>
+          <CarouselContent
+            className={cn('py-4', {
+              'flex justify-center': myClubs.length === 0
+            })}
           >
-            <Icons.plus className="size-5" />
-            Create club
-          </Link>
-        </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2 py-4">
-          {myClubs.map((club) => {
-            return (
-              <Card key={club.name} className="">
-                <CardHeader className="flex flex-row justify-between">
-                  <div className="flex items-center space-x-4">
-                    <Avatar>
-                      <AvatarFallback>TA</AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <h3 className="text-lg font-bold">{club.name}</h3>
-                      <div className="text-sm text-secondary-foreground flex items-center space-x-2">
-                        <span>
-                          <Icons.users className="size-4" />
-                        </span>
-                        <h4>{club.userClubs.length} members</h4>
+            {myClubs.map((club) => {
+              return (
+                <CarouselItem
+                  key={club.name}
+                  className="sm:basis-1/2 lg:basis-1/3"
+                >
+                  <Card>
+                    <CardHeader className="flex flex-row justify-between">
+                      <div className="flex items-center space-x-4">
+                        <Avatar>
+                          <AvatarFallback>TA</AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <h3 className="text-lg font-bold">{club.name}</h3>
+                          <div className="text-sm text-secondary-foreground flex items-center space-x-2">
+                            <span>
+                              <Icons.users className="size-4" />
+                            </span>
+                            <h4>{club.userClubs.length} members</h4>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                  <Link
-                    href={`/club/${club.name}`}
-                    className={cn(
-                      buttonVariants({
-                        variant: 'default',
-                        size: 'icon'
-                      })
-                    )}
-                  >
-                    <FaArrowRightLong />
-                  </Link>
-                </CardHeader>
-              </Card>
-            );
-          })}
-        </div>
+                      <Link
+                        href={`/club/${club.name}`}
+                        className={cn(
+                          buttonVariants({
+                            variant: 'default',
+                            size: 'icon'
+                          })
+                        )}
+                      >
+                        <FaArrowRightLong />
+                      </Link>
+                    </CardHeader>
+                  </Card>
+                </CarouselItem>
+              );
+            })}
+          </CarouselContent>
+          <div
+            className={cn('flex gap-2', {
+              hidden: myClubs.length === 0
+            })}
+          >
+            <CarouselNonRelativePrevious />
+            <CarouselNonRelativeNext />
+          </div>
+        </Carousel>
       </section>
       <section className="">
         <Carousel>
