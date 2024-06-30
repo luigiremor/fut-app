@@ -56,6 +56,18 @@ export class MatchController {
     });
   }
 
+  @Post(':id/delete-goal')
+  async deleteGoal(
+    @Param('id') id: string,
+    @Body() recordGoalDto: RecordGoalDto,
+  ) {
+    return this.matchService.deleteGoal({
+      matchId: id,
+      userId: recordGoalDto.userId,
+      team: recordGoalDto.team,
+    });
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const match = await this.matchService.findOne(id);

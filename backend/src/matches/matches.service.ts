@@ -207,6 +207,48 @@ export class MatchService {
     return this.matchRepository.save(match);
   }
 
+  async deleteGoal({
+    matchId,
+    team,
+    userId,
+  }: {
+    matchId: string;
+    userId: string;
+    team: 'A' | 'B';
+  }): Promise<Match> {
+    const match = await this.matchRepository.findOne({
+      where: { id: matchId },
+      relations: ['teamA', 'teamB'],
+    });
+    if (!match) {
+      throw new HttpException('Match not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (team === 'A') {
+      const userGoals = match.goalsTeamA;
+      const userGoalIndex = userGoals.lastIndexOf(userId);
+      if (userGoalIndex === -1) {
+        throw new HttpException(
+          'User has not scored any goals',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      match.goalsTeamA.splice(userGoalIndex, 1);
+    } else {
+      const userGoals = match.goalsTeamB;
+      const userGoalIndex = userGoals.lastIndexOf(userId);
+      if (userGoalIndex === -1) {
+        throw new HttpException(
+          'User has not scored any goals',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      match.goalsTeamB.splice(userGoalIndex, 1);
+    }
+
+    return this.matchRepository.save(match);
+  }
+
   async findOne(id: string): Promise<Match> {
     return this.matchRepository.findOne({
       where: { id },

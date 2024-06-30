@@ -1,3 +1,4 @@
+import { AddGoalButton } from '@/components/match/add-goal-button';
 import { EditResultButton } from '@/components/match/edit-result-button';
 import { JoinMatchDropdown } from '@/components/match/join-match-dropdown';
 import { RatingUser } from '@/components/match/rating-user';
@@ -5,6 +6,7 @@ import { ShuffleTeamsButton } from '@/components/match/shuffle-teams-button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { getSession } from '@/lib/auth/utils';
+import { getHasAdminPermission } from '@/resolver/club/get-has-admin-permission';
 import api from '@/services/api';
 import { Match } from '@/types/Api';
 import { AxiosResponse } from 'axios';
@@ -40,6 +42,7 @@ export default async function MatchPage({
   const { clubName, matchId } = params;
 
   const session = await getSession();
+  const hasUserAdminPermission = await getHasAdminPermission(clubName);
 
   const match = await getMatch(matchId);
 
@@ -51,7 +54,8 @@ export default async function MatchPage({
     (user) => user.id === session?.user?.id
   );
 
-  console.log(searchParams.edit);
+  const goalsTeamA = match.data.goalsTeamA.length;
+  const goalsTeamB = match.data.goalsTeamB.length;
 
   return (
     <div className="flex flex-col gap-4">
@@ -121,14 +125,15 @@ export default async function MatchPage({
           </div>
           <section className="grid grid-cols-2 gap-4 py-4">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <h3 className="text-lg font-medium mb-2">Team A</h3>
+                <p className="text-lg font-medium">
+                  Score: <span className="text-xl">{goalsTeamA}</span>
+                </p>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
                   {match.data.teamA.map((player) => {
-                    console.log(player.receivedRatings);
-
                     const hasRated =
                       player.receivedRatings?.filter(
                         (receivedRating) =>
@@ -142,7 +147,9 @@ export default async function MatchPage({
                         receivedRating.match.id === matchId
                     )[0]?.rating;
 
-                    console.log(currentRate);
+                    const scoredGoals = match.data.goalsTeamA.filter(
+                      (goal) => goal === player.id
+                    ).length;
 
                     return (
                       <li
@@ -165,7 +172,13 @@ export default async function MatchPage({
                             </span>
                           </div>
                         </div>
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-2">
+                          <AddGoalButton
+                            userId={player.id}
+                            scoredGoals={scoredGoals}
+                            teamType="A"
+                            hasUserAdminPermission={hasUserAdminPermission}
+                          />
                           <div className="flex items-center">
                             <RatingUser
                               currentRate={currentRate ?? 0}
@@ -183,8 +196,11 @@ export default async function MatchPage({
               </CardContent>
             </Card>
             <Card>
-              <CardHeader>
-                <h3 className="text-lg font-medium mb-2">Team A</h3>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <h3 className="text-lg font-medium mb-2">Team B</h3>
+                <p className="text-lg font-medium">
+                  Score: <span className="text-xl">{goalsTeamB}</span>
+                </p>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
@@ -200,7 +216,11 @@ export default async function MatchPage({
                       (receivedRating) =>
                         receivedRating.reviewer.id === session?.user?.id &&
                         receivedRating.match.id === matchId
-                    )[0];
+                    )[0]?.rating;
+
+                    const scoredGoals = match.data.goalsTeamB.filter(
+                      (goal) => goal === player.id
+                    ).length;
 
                     return (
                       <li
@@ -223,10 +243,16 @@ export default async function MatchPage({
                             </span>
                           </div>
                         </div>
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-2">
+                          <AddGoalButton
+                            userId={player.id}
+                            scoredGoals={scoredGoals}
+                            teamType="B"
+                            hasUserAdminPermission={hasUserAdminPermission}
+                          />
                           <div className="flex items-center">
                             <RatingUser
-                              currentRate={currentRate?.rating || 0}
+                              currentRate={currentRate ?? 0}
                               hasRated={hasRated}
                               matchId={matchId}
                               isEditing={searchParams.edit}

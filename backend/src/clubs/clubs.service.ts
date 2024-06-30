@@ -210,4 +210,40 @@ export class ClubsService {
 
     return topPlayersWithUser;
   }
+
+  async getMostScorers(clubName: string) {
+    const club = await this.clubRepository.findOne({
+      where: { name: clubName },
+      relations: ['matches', 'matches.goals'],
+    });
+
+    if (!club) {
+      throw new HttpException('Club not found', HttpStatus.NOT_FOUND);
+    }
+
+    const playerGoals: Record<string, number> = {};
+
+    for (const match of club.matches) {
+      for (const goal of match.goalsTeamA.concat(match.goalsTeamB)) {
+        if (!playerGoals[goal]) {
+          playerGoals[goal] = 0;
+        }
+        playerGoals[goal] += 1;
+      }
+    }
+
+    const sortedPlayers = Object.entries(playerGoals).sort(
+      ([, goalsA], [, goalsB]) => goalsB - goalsA,
+    );
+    const topPlayers = sortedPlayers.slice(0, 3);
+
+    const topPlayersWithUser = await Promise.all(
+      topPlayers.map(async ([userId, goals]) => {
+        const user = await this.userService.findOne({ userId });
+        return { user, goals };
+      }),
+    );
+
+    return topPlayersWithUser;
+  }
 }

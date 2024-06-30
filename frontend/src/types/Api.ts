@@ -50,6 +50,7 @@ export interface User {
   userClubs: UserClub[];
   givenRatings: PlayerRating[];
   receivedRatings: PlayerRating[];
+  matches: Match[];
 }
 
 export interface UserClub {
@@ -96,12 +97,12 @@ export interface CreateMatchDto {
 
 export interface ConfirmParticipationDto {
   matchId: string;
-  position: string;
+  position: 'GK' | 'DEF' | 'MID' | 'FWD';
 }
 
 export interface RecordGoalDto {
   userId: string;
-  team: object;
+  team: 'A' | 'B';
 }
 
 export interface CreatePlayerRatingDto {
@@ -580,6 +581,36 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         type: ContentType.Json,
         format: 'json',
         ...params
+      }),
+
+    /**
+     * No description
+     *
+     * @name ClubsControllerFindMostActiveUsers
+     * @request GET:/clubs/{name}/users/most-active
+     * @secure
+     */
+    clubsControllerFindMostActiveUsers: (name: string, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/clubs/${name}/users/most-active`,
+        method: 'GET',
+        secure: true,
+        ...params
+      }),
+
+    /**
+     * No description
+     *
+     * @name ClubsControllerFindRankings
+     * @request GET:/clubs/{name}/users/most-ranked
+     * @secure
+     */
+    clubsControllerFindRankings: (name: string, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/clubs/${name}/users/most-ranked`,
+        method: 'GET',
+        secure: true,
+        ...params
       })
   };
   userClub = {
@@ -763,6 +794,54 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     matchControllerFindOne: (id: string, params: RequestParams = {}) =>
       this.request<Match, any>({
         path: `/matches/${id}`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params
+      }),
+
+    /**
+     * No description
+     *
+     * @name MatchControllerFindUpcomingMatchesForUser
+     * @request GET:/matches/user/me/upcoming
+     * @secure
+     */
+    matchControllerFindUpcomingMatchesForUser: (params: RequestParams = {}) =>
+      this.request<Match[], any>({
+        path: `/matches/user/me/upcoming`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params
+      }),
+
+    /**
+     * No description
+     *
+     * @name MatchControllerFindPastMatchesForUser
+     * @request GET:/matches/user/me/past
+     * @secure
+     */
+    matchControllerFindPastMatchesForUser: (params: RequestParams = {}) =>
+      this.request<Match[], any>({
+        path: `/matches/user/me/past`,
+        method: 'GET',
+        secure: true,
+        format: 'json',
+        ...params
+      }),
+
+    /**
+     * No description
+     *
+     * @name MatchControllerFindUpcomingMatchesForClub
+     * @request GET:/matches/club/{clubName}/upcoming
+     * @secure
+     */
+    matchControllerFindUpcomingMatchesForClub: (clubName: string, params: RequestParams = {}) =>
+      this.request<Match[], any>({
+        path: `/matches/club/${clubName}/upcoming`,
         method: 'GET',
         secure: true,
         format: 'json',

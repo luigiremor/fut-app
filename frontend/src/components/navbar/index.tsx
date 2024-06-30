@@ -1,7 +1,6 @@
 import Link from 'next/link';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/common/icons';
-import { cn } from '@/lib/utils';
 import { IoMenu } from 'react-icons/io5';
 import { SignOut } from '@/components/common/sign-out';
 import { paths } from '@/utils/paths';
@@ -18,28 +17,6 @@ export const Navbar = () => {
           Soccer Match
         </Link>
         <nav className="hidden md:flex items-center space-x-6">
-          <Link
-            className={cn(
-              buttonVariants({
-                variant: 'link'
-              }),
-              'text-white'
-            )}
-            href="#"
-          >
-            Teams
-          </Link>
-          <Link
-            className={cn(
-              buttonVariants({
-                variant: 'link'
-              }),
-              'text-white'
-            )}
-            href="#"
-          >
-            Games
-          </Link>
           <SignOut />
         </nav>
         <Button

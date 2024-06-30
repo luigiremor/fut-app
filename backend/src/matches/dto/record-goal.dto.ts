@@ -1,9 +1,14 @@
-import { IsString } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
+
+enum Team {
+  A = 'A',
+  B = 'B',
+}
 
 export class RecordGoalDto {
   @IsString()
   userId: string;
 
-  @IsString()
-  team: 'A' | 'B';
+  @IsEnum(Team)
+  team: Team;
 }
