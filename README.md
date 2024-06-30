@@ -21,4 +21,4 @@
 
 ---
 
-Desenvolvido por **Luigi Remor Costa** - INE5646-03238A (20241) - Programação para Web
+Desenvolvido por **Luigi Remor Costa** - INE5646-03238A (20241) - Programação para Web.
