@@ -123,11 +123,11 @@ export default async function MatchPage({
               <ShuffleTeamsButton matchId={matchId} />
             </div>
           </div>
-          <section className="grid grid-cols-2 gap-4 py-4">
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 py-4">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <h3 className="text-lg font-medium mb-2">Team A</h3>
-                <p className="text-lg font-medium">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                <h3 className="text-lg font-medium ">Team A</h3>
+                <p className="font-medium">
                   Score: <span className="text-xl">{goalsTeamA}</span>
                 </p>
               </CardHeader>
@@ -172,7 +172,7 @@ export default async function MatchPage({
                             </span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-col sm:flex-row items-center gap-2">
                           <AddGoalButton
                             userId={player.id}
                             scoredGoals={scoredGoals}
@@ -196,9 +196,9 @@ export default async function MatchPage({
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <h3 className="text-lg font-medium mb-2">Team B</h3>
-                <p className="text-lg font-medium">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                <h3 className="text-lg font-medium ">Team B</h3>
+                <p className="font-medium">
                   Score: <span className="text-xl">{goalsTeamB}</span>
                 </p>
               </CardHeader>
@@ -243,7 +243,7 @@ export default async function MatchPage({
                             </span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-col sm:flex-row items-center gap-2">
                           <AddGoalButton
                             userId={player.id}
                             scoredGoals={scoredGoals}
