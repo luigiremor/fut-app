@@ -2,13 +2,11 @@
 
 import api from '@/services/api';
 import { StarIcon } from 'lucide-react';
-import { Button } from '../ui/button';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { AxiosResponse } from 'axios';
 import { PlayerRating } from '@/types/Api';
 import { toast } from 'sonner';
-import { error } from 'console';
 import { useRouter } from 'next/navigation';
 
 const rateUser = async (
