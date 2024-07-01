@@ -54,7 +54,6 @@ async function loginUser({
 
 export function UserAuthForm({ redirectTo }: { redirectTo?: string }) {
   const [isRegister, setIsRegister] = useState(false);
-  const router = useRouter();
 
   const form = useForm<AuthenticationSchema>({
     resolver: zodResolver(schema)
@@ -66,8 +65,8 @@ export function UserAuthForm({ redirectTo }: { redirectTo?: string }) {
 
       toast.promise(registerPromise, {
         loading: 'Creating account...',
-        success: () => {
-          router.push('/dashboard');
+        success: async () => {
+          loginUser({ data, redirectTo });
           return 'Account created successfully';
         },
         error: 'Failed to create account'
