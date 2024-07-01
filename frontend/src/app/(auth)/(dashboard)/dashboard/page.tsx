@@ -204,6 +204,13 @@ export default async function Dashboard() {
                 </CarouselItem>
               );
             })}
+            {myClubs.length === 0 && (
+              <div className="flex justify-center items-center h-48">
+                <p className="text-lg text-muted-foreground">
+                  No clubs found. Create one now!
+                </p>
+              </div>
+            )}
           </CarouselContent>
           <div
             className={cn('flex gap-2', {
@@ -218,7 +225,7 @@ export default async function Dashboard() {
       <section className="">
         <Carousel>
           <div className="flex justify-between">
-            <h1 className="text-3xl font-bold">My matches</h1>
+            <h1 className="text-3xl font-bold">My past matches</h1>
           </div>
           <CarouselContent
             className={cn('py-4', {
