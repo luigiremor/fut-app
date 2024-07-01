@@ -19,6 +19,57 @@
 4. **Organize as Equipes**: Use nossa ferramenta para montar equipes equilibradas.
 5. **Confirme sua Presença**: Marque sua participação em jogos programados.
 
+## Setup para Desenvolvimento
+
+### Frontend
+
+1. Instale as dependências e certifique-se de que você possui o pnpm instalado. Caso contrário, execute o comando:
+   ```sh
+   npm install -g pnpm
+    ```
+2. Instale as dependências do projeto:
+    ```sh
+    pnpm install
+    ```
+3. Inicie o servidor de desenvolvimento:
+    ```sh
+    pnpm run dev
+    ```
+4. Para gerar novos tipos a partir do backend, execute:
+    ```sh
+    pnpm run generate-types
+    ```   
+
+### Backend
+
+1. Configure o banco de dados utilizando Docker:
+   ```sh
+   docker-compose up -d
+    ```
+2. Para rodar o backend em modo de desenvolvimento:
+    ```sh
+    pnpm run start:dev
+    ```
+
+### Arquivo .env
+
+Certifique-se de criar um arquivo `.env` na raiz do backend e outro no do frontend e preencher as seguintes variáveis:
+
+Para o frontend:
+
+- `NEXTAUTH_SECRET`: Chave secreta usada para autenticação no NextAuth.
+- `NEXT_PUBLIC_API_BASE_URL`: URL base da API pública utilizada pelo frontend.
+
+Para o backend:
+
+- `AUTH_SECRET`: Chave secreta usada para processos de autenticação.
+- `FRONTEND_DOMAIN`: Domínio onde o aplicativo frontend está hospedado.
+- `DB_HOST`: Endereço do host para o banco de dados.
+- `DB_PORT`: Número da porta para o banco de dados.
+- `DB_USERNAME`: Nome de usuário para autenticação no banco de dados.
+- `DB_PASSWORD`: Senha para autenticação no banco de dados.
+- `DB_DATABASE`: Nome do banco de dados para conectar.
+
 ---
 
-Desenvolvido por **Luigi Remor Costa** - INE5646-03238A (20241) - Programação para Web.
+Desenvolvido por **Luigi Remor Costa** (23203395) - INE5646-03238A (20241) - Programação para Web.
