@@ -35,6 +35,17 @@ async function bootstrap() {
 
   app.enableCors({
     origin: frontendDomain,
+    credentials: true,
+    allowedHeaders: [
+      'Authorization',
+      'Content-Type',
+      'Accept',
+      'Referer',
+      'Sec-Ch-Ua',
+      'Sec-Ch-Ua-Mobile',
+      'Sec-Ch-Ua-Platform',
+      'User-Agent',
+    ],
   });
 
   await app.listen(8080);
