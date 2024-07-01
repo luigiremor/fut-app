@@ -16,6 +16,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import api from '@/services/api';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 const createClubSchema = z.object({
   name: z
@@ -31,13 +32,19 @@ export const CreateClubForm = () => {
   const form = useForm<CreateClubSchema>({
     resolver: zodResolver(createClubSchema)
   });
+  const router = useRouter();
 
   const onSubmit = async (data: CreateClubSchema) => {
     const createClubPromise = api.post('/clubs', data);
 
     toast.promise(createClubPromise, {
       loading: 'Creating club...',
-      success: 'Club created successfully',
+      success: () => {
+        router.push('/dashboard');
+        router.refresh();
+
+        return 'Club created successfully';
+      },
       error: (error) => {
         console.error(error);
         return 'An error occurred while creating the club';
