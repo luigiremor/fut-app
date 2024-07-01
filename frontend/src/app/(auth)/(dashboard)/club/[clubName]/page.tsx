@@ -120,11 +120,11 @@ export default async function ClubPage({
                         <Icons.users className="size-5" />
                       </div>
                     </div>
-                    <p className="text-gray-500 flex items-center">
+                    <p className="text-muted-foreground flex items-center">
                       <Clock className="size-5 mr-2" />
                       {format(match.date, 'PPpp')}
                     </p>
-                    <p className="text-gray-500 flex items-center">
+                    <p className="text-muted-foreground flex items-center">
                       <LocateFixed className="size-5 mr-2" />
                       {match.location}
                     </p>
@@ -142,6 +142,11 @@ export default async function ClubPage({
                     </Link>
                   </CarouselItem>
                 ))}
+                {sortedUpcomingMatches.length === 0 && (
+                  <p className="text-muted-foreground text-center text-lg flex justify-center w-full">
+                    No upcoming games
+                  </p>
+                )}
               </CarouselContent>
             </CardContent>
           </Carousel>
@@ -162,11 +167,18 @@ export default async function ClubPage({
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-gray-500">{member.user.username}</p>
+                      <p className="text-muted-foreground">
+                        {member.user.username}
+                      </p>
                       <p className="font-bold">{member.goals} Goals</p>
                     </div>
                   </div>
                 ))}
+                {mostScorers.length === 0 && (
+                  <p className="text-muted-foreground text-center text-lg">
+                    No scorers yet
+                  </p>
+                )}
               </div>
 
               <div className="bg-gray-100 p-4 rounded-lg">
@@ -179,11 +191,18 @@ export default async function ClubPage({
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-gray-500">{member.user.username}</p>
+                      <p className="text-muted-foreground">
+                        {member.user.username}
+                      </p>
                       <p className="font-bold">{member.count} Games</p>
                     </div>
                   </div>
                 ))}
+                {mostActiveMembers.length === 0 && (
+                  <p className="text-muted-foreground text-center text-lg">
+                    No active members
+                  </p>
+                )}
               </div>
 
               <div className="bg-gray-100 p-4 rounded-lg">
@@ -196,13 +215,20 @@ export default async function ClubPage({
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-gray-500">{member.user.username}</p>
+                      <p className="text-muted-foreground">
+                        {member.user.username}
+                      </p>
                       <p className="font-bold">
                         {member.averageRating.toFixed(1)} Rating
                       </p>
                     </div>
                   </div>
                 ))}
+                {rankingMembers.length === 0 && (
+                  <p className="text-muted-foreground text-center text-lg">
+                    No ranked members
+                  </p>
+                )}
               </div>
             </div>
           </CardContent>
