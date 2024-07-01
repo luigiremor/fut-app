@@ -16,7 +16,6 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import api from '@/services/api';
 
 const schema = z.object({
