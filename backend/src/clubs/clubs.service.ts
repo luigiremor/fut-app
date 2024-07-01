@@ -11,12 +11,14 @@ import { InviteClubDto } from './dto/invite-club.dto';
 import { InviteToken } from './entities/invite-token.entity';
 import * as crypto from 'crypto';
 import { UserService } from 'src/user/user.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ClubsService {
   constructor(
     private userClubService: UserClubService,
     private userService: UserService,
+    private configService: ConfigService,
     @InjectRepository(Club)
     private clubRepository: Repository<Club>,
     @InjectRepository(InviteToken)
@@ -91,7 +93,9 @@ export class ClubsService {
 
     await this.inviteTokenRepository.save(newInviteToken);
 
-    return `${process.env.FRONTEND_DOMAIN}/join?clubName=${clubName}&inviteToken=${inviteToken}`;
+    const frontendDomain = this.configService.get<string>('FRONTEND_DOMAIN');
+
+    return `${frontendDomain}/join?clubName=${clubName}&inviteToken=${inviteToken}`;
   }
 
   async joinClub(
