@@ -9,7 +9,7 @@ export default function CreateMatch({
     <div className="flex justify-center w-full">
       <div className="flex flex-col max-w-lg w-full">
         <h2 className="text-xl font-medium">Create a new match</h2>
-        <CreateMatchForm clubName={params.clubName} />
+        <CreateMatchForm clubName={decodeURI(params.clubName)} />
       </div>
     </div>
   );

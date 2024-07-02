@@ -23,7 +23,7 @@ import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { TimePicker } from '../ui/time-picker/time-picker';
 import { useRouter } from 'next/navigation';
-import { Match } from '@/types/Api';
+import { CreateMatchDto, Match } from '@/types/Api';
 import { AxiosResponse } from 'axios';
 
 const createMatchSchema = z.object({
@@ -39,17 +39,29 @@ const createMatchSchema = z.object({
 
 type CreateMatchSchema = z.infer<typeof createMatchSchema>;
 
+const createMatch = ({
+  createMatchDto
+}: {
+  createMatchDto: CreateMatchDto;
+}) => {
+  return api.post('/matches', createMatchDto);
+};
+
 export const CreateMatchForm = ({ clubName }: { clubName: string }) => {
   const form = useForm<CreateMatchSchema>({
     resolver: zodResolver(createMatchSchema)
   });
+
   const router = useRouter();
 
   const onSubmit = async (data: CreateMatchSchema) => {
-    const createMatchPromise: Promise<AxiosResponse<Match>> = api.post(
-      '/matches',
-      data
-    );
+    const createMatchPromise: Promise<AxiosResponse<Match>> = createMatch({
+      createMatchDto: {
+        date: data.date.toDateString(),
+        location: data.location,
+        clubName
+      }
+    });
 
     toast.promise(createMatchPromise, {
       loading: 'Creating Match...',
