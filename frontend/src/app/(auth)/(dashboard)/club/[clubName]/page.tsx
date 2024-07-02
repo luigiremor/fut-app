@@ -103,7 +103,7 @@ export default async function ClubPage({
               <CarouselContent className="px-4 space-x-4">
                 {sortedUpcomingMatches.map((match, index) => (
                   <CarouselItem
-                    className="bg-gray-100 p-4 rounded-lg flex flex-col gap-4 basis-1/2"
+                    className="bg-gray-100 p-4 rounded-lg flex flex-col gap-4 basis-full md:basis-1/2"
                     key={match.id}
                   >
                     <div className="flex justify-between items-center">
