@@ -64,8 +64,8 @@ export function UserAuthForm({ redirectTo }: { redirectTo?: string }) {
 
       toast.promise(registerPromise, {
         loading: 'Creating account...',
-        success: async () => {
-          await loginUser({ data, redirectTo });
+        success: () => {
+          loginUser({ data, redirectTo });
           return 'Account created successfully';
         },
         error: 'Failed to create account'
